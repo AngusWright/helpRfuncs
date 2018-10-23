@@ -1,0 +1,11 @@
+Package: helpRfuncs
+Type: Package
+Title: Helpful functions for R 
+Version: 0.0.1
+Date: 2018-10-22
+Author: Angus H. Wright
+Maintainer: Angus H. Wright <awright@astro.uni-bonn.de>
+Description: Dumping ground for helpful functions that I have written in R 
+Depends: 
+License: GPL-2
+Packaged: 2018-10-22 10:30:43 UTC; awright
