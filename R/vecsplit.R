@@ -3,13 +3,13 @@
 # Created by A.H.Wright (2018-10-22)
 #
 
-vecsplit<-function(X,by,n,recollapse=!missing(n)) {
+vecsplit<-function(X,by,n,recollapse=!missing(n),fixed=TRUE) {
   if (missing(n)) { 
     #Return all values {{{
     if (recollapse) { 
-      return=unlist(lapply(X,function(Y) paste(strsplit(Y,by)[[1]],collapse=by)))
+      return=unlist(lapply(X,function(Y) paste(strsplit(Y,by,fixed=fixed)[[1]],collapse=by)))
     } else { 
-      return=unlist(lapply(X,function(Y) strsplit(Y,by)[[1]]))
+      return=unlist(lapply(X,function(Y) strsplit(Y,by,fixed=fixed)[[1]]))
     } 
     #}}}
   } else if(length(n) > 1) { 
@@ -20,19 +20,19 @@ vecsplit<-function(X,by,n,recollapse=!missing(n)) {
     }
     #}}}
     if (recollapse) { 
-      return=unlist(lapply(X,function(Y) paste(strsplit(Y,by)[[1]][n],collapse=by)))
+      return=unlist(lapply(X,function(Y) paste(strsplit(Y,by,fixed=fixed)[[1]][n],collapse=by)))
     } else { 
-      return=unlist(lapply(X,function(Y) strsplit(Y,by)[[1]][n]))
+      return=unlist(lapply(X,function(Y) strsplit(Y,by,fixed=fixed)[[1]][n]))
     } 
     #}}}
   } else if(n < 0) { 
     #If n is negative, select from the end {{{
     n<-abs(n)
-    return=unlist(lapply(X,function(Y) rev(strsplit(Y,by)[[1]])[n]))
+    return=unlist(lapply(X,function(Y) rev(strsplit(Y,by,fixed=fixed)[[1]])[n]))
     #}}}
   } else if (n > 0) {  
     #If n is positive, select from the front {{{
-    return=unlist(lapply(X,function(Y) strsplit(Y,by)[[1]][n]))
+    return=unlist(lapply(X,function(Y) strsplit(Y,by,fixed=fixed)[[1]][n]))
     #}}}
   } else if (n == 0) { 
     #If n==0, stop {{{
