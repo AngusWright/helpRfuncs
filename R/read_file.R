@@ -9,7 +9,16 @@ read.file<-function(file,...) {
   if (grepl('\\.fits',file,ignore.case=TRUE)){
     cat<-Rfits::Rfits_read_table(file=file,...)
   } else if (grepl('\\.cat',file,ignore.case=TRUE)){
-    cat<-Rfits::Rfits_read_table(file=file,ext=3,...)
+    hdr<-list(keyvalues=list(NAXIS=0))
+    exten=1
+    while (class(hdr)!="try-error") {
+      if (length(hdr$keyvalues$NAXIS)!=0 && hdr$keyvalues$NAXIS > 0) {
+        break
+      }
+      exten<-exten+1
+      hdr<-try(Rfits::Rfits_read_header(file=file,ext=exten))
+    }
+    cat<-Rfits::Rfits_read_table(file=file,ext=exten,...)
   } else if (grepl('\\.asc',file,ignore.case=TRUE)){
     cat<-data.table::fread(file=file,...)
   } else if (grepl('\\.csv',file,ignore.case=TRUE)){
