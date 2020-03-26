@@ -1,6 +1,6 @@
 
 #All-in-one function for reading input files /*fold*/{{{ 
-read.file<-function(file,...) { 
+read.file<-function(file,extname,...) { 
   #Check for file 
   if (!file.exists(file)) { 
     stop("File ",file," does not exist!\n")
@@ -12,7 +12,8 @@ read.file<-function(file,...) {
     hdr<-list(keyvalues=list(NAXIS=0))
     exten=1
     while (class(hdr)!="try-error") {
-      if (length(hdr$keyvalues$NAXIS)!=0 && hdr$keyvalues$NAXIS > 0) {
+      if ((length(hdr$keyvalues$NAXIS)!=0 && hdr$keyvalues$NAXIS > 0) & 
+         !(!missing(extname) && length(hdr$keyvalues$EXTNAME)>0 && hdr$keyvalues$EXTNAME!=extname)) { 
         break
       }
       exten<-exten+1
