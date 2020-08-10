@@ -7,7 +7,13 @@ read.file<-function(file,extname,...) {
   }
   #Determine the desired file type and output it
   if (grepl('\\.fits',file,ignore.case=TRUE)){
-    cat<-Rfits::Rfits_read_table(file=file,...)
+    if ("Rfits" %in% rownames(installed.packages())) { 
+      cat<-Rfits::Rfits_read_table(file=file,...)
+    } else if ("FITSio" %in% rownames(installed.packages())) {
+      cat<-FITSio::readFITS(file=file,...)
+    } else { 
+      stop("There is no FITS package installed (Rfits or FITSio)")
+    }
   } else if (grepl('\\.cat',file,ignore.case=TRUE)){
     hdr<-list(keyvalues=list(NAXIS=0))
     exten=1
@@ -17,9 +23,21 @@ read.file<-function(file,extname,...) {
         break
       }
       exten<-exten+1
-      hdr<-try(Rfits::Rfits_read_header(file=file,ext=exten))
+      if ("Rfits" %in% rownames(installed.packages())) { 
+        hdr<-try(Rfits::Rfits_read_header(file=file,ext=exten))
+      } else if ("FITSio" %in% rownames(installed.packages())) {
+        hdr<-try(FITSio::readFITS(file=file,ext=exten))
+      } else { 
+        stop("There is no FITS package installed (Rfits or FITSio)")
+      }
     }
-    cat<-Rfits::Rfits_read_table(file=file,ext=exten,...)
+    if ("Rfits" %in% rownames(installed.packages())) { 
+      cat<-Rfits::Rfits_read_table(file=file,ext=exten,...)
+    } else if ("FITSio" %in% rownames(installed.packages())) {
+      cat<-FITSio::readFITS(file=file,ext=exten,...)
+    } else { 
+      stop("There is no FITS package installed (Rfits or FITSio)")
+    }
   } else if (grepl('\\.asc',file,ignore.case=TRUE)){
     cat<-data.table::fread(file=file,...)
   } else if (grepl('\\.csv',file,ignore.case=TRUE)){
