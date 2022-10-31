@@ -1,6 +1,6 @@
 
 #Show bandwidth function {{{
-showbw<-function(dens,kernel=NULL,loc='topleft',scale=0.2,inset=c(0.1,0.1),cex=1,col='black',type='s',logbw=TRUE,as.bw=TRUE) {
+showbw<-function(dens,kernel=NULL,loc='topleft',scale=0.2,inset=c(0.1,0.1),cex=1,col='black',type='s',logbw=TRUE,as.bw=TRUE,lwd=1,labels=TRUE) {
   #Get location parameters
   usercoord = par()$usr
   xlogcheck = FALSE
@@ -67,22 +67,24 @@ showbw<-function(dens,kernel=NULL,loc='topleft',scale=0.2,inset=c(0.1,0.1),cex=1
   #kern$x<-kern$x[ind[1]:ind[2]]
   kern$y<-dy*(kern$y*0.8 + 0.1) + yb
   kern$x<-kern$x+xl+dx/2
-  text(xl+dx/2,max(kern$y,na.rm=T),lab="Density Kernel",cex=cex,pos=3,col=col)
-  if (kernel=='rect' & !as.bw) { 
-    if (logbw) { 
-      text(xl+dx/2,min(kern$y,na.rm=T),lab=bquote(paste("log"[10],"(width) = ",.(fsignif(log10(kern$bw*sqrt(12)),digits=2)))),cex=cex,pos=1,col=col)
+  if (labels) {
+    text(xl+dx/2,max(kern$y,na.rm=T),lab="Density Kernel",cex=cex,pos=3,col=col)
+    if (kernel=='rect' & !as.bw) { 
+      if (logbw) { 
+        text(xl+dx/2,min(kern$y,na.rm=T),lab=bquote(paste("log"[10],"(width) = ",.(fsignif(log10(kern$bw*sqrt(12)),digits=2)))),cex=cex,pos=1,col=col)
+      } else { 
+        text(xl+dx/2,min(kern$y,na.rm=T),lab=bquote(paste("width = ",.(fsignif(kern$bw*sqrt(12),digits=2)))),cex=cex,pos=1,col=col)
+      }
     } else { 
-      text(xl+dx/2,min(kern$y,na.rm=T),lab=bquote(paste("width = ",.(fsignif(kern$bw*sqrt(12),digits=2)))),cex=cex,pos=1,col=col)
-    }
-  } else { 
-    if (logbw) { 
-      text(xl+dx/2,min(kern$y,na.rm=T),lab=bquote(paste("log"[10],"(bw) = ",.(fsignif(log10(kern$bw),digits=2)))),cex=cex,pos=1,col=col)
-    } else { 
-      text(xl+dx/2,min(kern$y,na.rm=T),lab=bquote(paste("bw = ",.(fsignif(kern$bw,digits=2)))),cex=cex,pos=1,col=col)
-    }
-  } 
+      if (logbw) { 
+        text(xl+dx/2,min(kern$y,na.rm=T),lab=bquote(paste("log"[10],"(bw) = ",.(fsignif(log10(kern$bw),digits=2)))),cex=cex,pos=1,col=col)
+      } else { 
+        text(xl+dx/2,min(kern$y,na.rm=T),lab=bquote(paste("bw = ",.(fsignif(kern$bw,digits=2)))),cex=cex,pos=1,col=col)
+      }
+    } 
+  }
 
-  lines(kern,col=col,type=type)
+  lines(kern,col=col,type=type,lwd=lwd)
   par(xlog = xlogcheck)
   par(ylog = ylogcheck)
   par(usr = usercoord)
