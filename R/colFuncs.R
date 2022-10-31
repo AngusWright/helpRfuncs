@@ -55,10 +55,11 @@ colWeightedCounts<-function (x, w, rows = NULL, cols = NULL, value = TRUE, na.rm
       as.numeric(counts)
     }
 }
-colWeightedTabulates<-function (x, w, rows = NULL, cols = NULL, values = NULL, cores=1, ...) 
+colWeightedTabulates<-function (x, w, rows = NULL, cols = NULL, values = NULL, cores=1, na.rm, ...) 
 {
     library(foreach)
     if (cores>1) { 
+      #cat(paste("Running in parallel:",cores,"\n"))
       library(doParallel)
       registerDoParallel(cores=cores)
     }

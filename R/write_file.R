@@ -37,7 +37,8 @@ write.file<-function(file,cat,quote=FALSE,row.names=FALSE,col.names=TRUE,...) {
   } else if (grepl('\\.asc',file,ignore.case=TRUE)){
     write.table(file=file,cat,quote=quote,row.names=row.names,col.names=col.names,...)
   } else if (grepl('\\.csv',file,ignore.case=TRUE)){
-    write.csv(file=file,cat,quote=quote,row.names=row.names,col.names=col.names,...)
+    #data.table::fwrite(file=file,cat,quote=quote,row.names=row.names,...)
+    data.table::fwrite(file=file,cat,...)
   } else if (grepl('\\.Rdata',file,ignore.case=TRUE)){
     save(file=file,cat,...)
   } else { 
