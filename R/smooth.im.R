@@ -19,7 +19,7 @@ smooth.im<-function(im,filter.sd.pix,normalise=TRUE) {
 
 smooth.im.par<-function(im,filter.sd.pix,normalise=TRUE,n=c(1,1)) { 
 
-  require(foreach)
+  require(doParallel)
 
   if (length(filter.sd.pix)==1) { 
     filter.sd.pix<-rep(filter.sd.pix,2)
