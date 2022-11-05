@@ -1,6 +1,5 @@
 
 smooth.im<-function(im,filter.sd.pix,normalise=TRUE) { 
-  require(LAMBDAR)
   if (length(filter.sd.pix)==1) { 
     filter.sd.pix<-rep(filter.sd.pix,2)
   }
@@ -9,7 +8,7 @@ smooth.im<-function(im,filter.sd.pix,normalise=TRUE) {
   psf <- exp(-(((psf.x - ncol(im)/2)^2/(2 * filter.sd.pix[1]^2)) + ((psf.y - 
       nrow(im)/2)^2/(2 * filter.sd.pix[2]^2))))
 
-  conv<-convolve.psf(psf,im)
+  conv<-fft.convolve(psf,im,normalise=TRUE,mod.arr1=TRUE)
 
   if (normalise) { 
     conv<-conv/sum(psf)
@@ -17,7 +16,7 @@ smooth.im<-function(im,filter.sd.pix,normalise=TRUE) {
   return=conv
 }
 
-smooth.im.par<-function(im,filter.sd.pix,normalise=TRUE,n=c(1,1)) { 
+smooth.im.par<-function(im,filter.sd.pix,normalise=FALSE,n=c(1,1)) { 
 
   require(doParallel)
 
