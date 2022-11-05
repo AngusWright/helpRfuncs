@@ -5,7 +5,7 @@
 
 hist2D<-function(xf,yf,w,z,zfun=median,nbins=c(25,25),dx=NULL,dy=NULL,zlog=FALSE,xlim=NULL,ylim=NULL,
                  palette=grey.colors,ncol=256,colBar=TRUE,flip=FALSE,colmin=0,colmax=1,
-                 zlim=NULL,barloc='topleft',orient='v',axes=T,useRaster=TRUE,
+                 zlim=NULL,barloc='topleft',orient='v',barscale=c(0.2,1/20),axes=T,useRaster=TRUE,
                  titleshift=1.0,add=FALSE,alpha=1,asp=1,plot=TRUE,badval=0,...) {
  
   #Install/Load the required packages {{{
@@ -169,9 +169,9 @@ hist2D<-function(xf,yf,w,z,zfun=median,nbins=c(25,25),dx=NULL,dy=NULL,zlog=FALSE
   #Plot the colour bar, if required {{{
   if (colBar) {
     if (zlog) {
-      suppressWarnings(magbar(barloc,title="log(Count)",range=zlim,col=col,labN=3,scale=c(0.2,1/20),orient=orient,titleshift=titleshift))
+      suppressWarnings(magbar(barloc,title="log(Count)",range=zlim,col=col,labN=3,scale=barscale,orient=orient,titleshift=titleshift))
     } else {
-      suppressWarnings(magbar(barloc,title="Count",range=zlim,col=col,labN=3,scale=c(0.2,1/20),orient=orient,titleshift=titleshift))
+      suppressWarnings(magbar(barloc,title="Count",range=zlim,col=col,labN=3,scale=barscale,orient=orient,titleshift=titleshift))
     }
   }
   #}}}
