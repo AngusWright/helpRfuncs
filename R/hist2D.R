@@ -168,6 +168,16 @@ hist2D<-function(xf,yf,w,z,zfun=median,nbins=c(25,25),dx=NULL,dy=NULL,zlog=FALSE
   #}}}
   #Plot the colour bar, if required {{{
   if (colBar) {
+    #Remake the colour palette with low-N (better for the bar) {{{
+    col<-suppressMessages(try(palette(100,start=colmin,end=colmax),silent=TRUE))
+    if (class(col)=='try-error') {
+      col<-palette(ncol)
+    }
+    if (flip) { col<-rev(col) }
+    if (alpha!=1) { 
+      col<-unlist(lapply(col,col2alpha,alpha=alpha))
+    }
+    #}}}
     if (zlog) {
       suppressWarnings(magbar(barloc,title="log(Count)",range=zlim,col=col,labN=3,scale=barscale,orient=orient,titleshift=titleshift))
     } else {

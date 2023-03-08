@@ -1,6 +1,21 @@
 
 #Show bandwidth function {{{
-showbw<-function(dens,kernel=NULL,loc='topleft',scale=0.2,inset=c(0.1,0.1),cex=1,col='black',type='s',logbw=TRUE,as.bw=TRUE,lwd=1,labels=TRUE) {
+showbw<-function(dens,kernel='auto',loc='topleft',scale=0.2,inset=c(0.1,0.1),
+                 cex=1,col='black',type='s',
+                 as.bw='auto',logbw=as.bw,lwd=1,labels=TRUE) {
+  #Check the kernel parameter 
+  kernel.list<-as.character(formals(density.default)$kernel)[-1]
+               #c("gaussian", "epanechnikov", "rectangular",
+               #  "triangular", "biweight","cosine", "optcosine")
+  if (kernel=='auto') { 
+    kernel=match.arg(dens$call$kernel,choices=kernel.list)
+  } else { 
+    kernel=match.arg(kernel,choices=kernel.list)
+  }
+  #Check the as.bw parameter 
+  if (as.bw=='auto') { 
+    as.bw=(kernel!='rectangular')
+  } 
   #Get location parameters
   usercoord = par()$usr
   xlogcheck = FALSE
@@ -69,7 +84,7 @@ showbw<-function(dens,kernel=NULL,loc='topleft',scale=0.2,inset=c(0.1,0.1),cex=1
   kern$x<-kern$x+xl+dx/2
   if (labels) {
     text(xl+dx/2,max(kern$y,na.rm=T),lab="Density Kernel",cex=cex,pos=3,col=col)
-    if (kernel=='rect' & !as.bw) { 
+    if (!as.bw) { 
       if (logbw) { 
         text(xl+dx/2,min(kern$y,na.rm=T),lab=bquote(paste("log"[10],"(width) = ",.(fsignif(log10(kern$bw*sqrt(12)),digits=2)))),cex=cex,pos=1,col=col)
       } else { 
@@ -94,39 +109,3 @@ showbw<-function(dens,kernel=NULL,loc='topleft',scale=0.2,inset=c(0.1,0.1),cex=1
 fsignif<-function(x,digits) gsub('-','\U2212',sapply(signif(x,digits), sprintf, fmt=paste0("%#.",digits,"g")))
 fround<-function(x,digits) gsub('-','\U2212',gsub('-0.00','0.00',(sapply(round(x,digits), sprintf, fmt=paste0("%#.",digits,"f")))))
 
-hanning.smooth <-
-function(arr1,degree=3) {
-#Perform Hanning smoothing on 2D data
-
-  #Determine degree {{{
-  degree<-abs(degree)
-  #}}}
-  #If degree is valid, smooth {{{
-  if (degree%%2!=1) {
-    #Degree is even -> Error {{{
-    stop("Hanning degree must be odd")
-    #}}}
-  } else if (degree > 1) {
-    #Initialise {{{
-    fact<-1
-    cumul<-1
-    sm.arr1<-arr1
-    #}}}
-    #Perform Unnormalised Smoothing over data {{{
-    for (i in 2:ceiling(degree/2)) {
-      fact<-0.5+0.5*(cos((pi*abs(i))/ceiling(degree/2)))
-      cumul<-cumul+fact
-      index<-1-i
-      sm.arr1<-sm.arr1+fact*elementshift(arr1,index)
-      sm.arr1<-sm.arr1+fact*elementshift(arr1,-index)
-    }#}}}
-    #Normalise and return {{{
-    return=sm.arr1/cumul
-    #}}}
-  } else {
-    #Smoothing does nothing: Return {{{
-    return=arr1
-    #}}}
-  }
-  #}}}
-}
