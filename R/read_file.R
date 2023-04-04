@@ -1,6 +1,6 @@
 
 #All-in-one function for reading input files /*fold*/{{{ 
-read.file<-function(file,extname,...) { 
+read.file<-function(file,extname="OBJECTS",...) { 
   #Check for file 
   if (!file.exists(file)) { 
     stop("File ",file," does not exist!\n")
@@ -17,9 +17,9 @@ read.file<-function(file,extname,...) {
   } else if (grepl('\\.cat',file,ignore.case=TRUE)){
     hdr<-list(keyvalues=list(NAXIS=0))
     exten=1
-    while (class(hdr)!="try-error") {
+    while (class(hdr)[1]!="try-error") {
       if ((length(hdr$keyvalues$NAXIS)!=0 && hdr$keyvalues$NAXIS > 0) & 
-         !(!missing(extname) && length(hdr$keyvalues$EXTNAME)>0 && hdr$keyvalues$EXTNAME!=extname)) { 
+         !(length(hdr$keyvalues$EXTNAME)>0 && hdr$keyvalues$EXTNAME!=extname)) { 
         break
       }
       exten<-exten+1
@@ -38,6 +38,8 @@ read.file<-function(file,extname,...) {
     } else { 
       stop("There is no FITS package installed (Rfits or FITSio)")
     }
+  } else if (grepl('\\.txt',file,ignore.case=TRUE)){
+    cat<-data.table::fread(file=file,...)
   } else if (grepl('\\.asc',file,ignore.case=TRUE)){
     cat<-data.table::fread(file=file,...)
   } else if (grepl('\\.csv',file,ignore.case=TRUE)){
@@ -52,8 +54,15 @@ read.file<-function(file,extname,...) {
       cat<-get(nam)
     }
   } else { 
-    stop("Unknown extension (not fits/asc/csv/Rdata) on file:\n",file)
+    stop(paste0("Unknown extension (not fits/cat/asc/txt/csv/Rdata) on file:\n",file))
   }
+  #Check for bad header read 
+  if (colnames(cat)[1]=='#') { 
+    warning("The file header was read incorrectly due to a leading '#'. Correcting.")
+    #We read the comment charachter as a column name. Shift all names across one 
+    colnames(cat)<-c(colnames(cat)[-1],"#")
+    cat[["#"]]<-NULL
+  } 
   return=cat
 }
 #/*fend*/}}}
