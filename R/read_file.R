@@ -66,3 +66,22 @@ read.file<-function(file,extname="OBJECTS",...) {
   return=cat
 }
 #/*fend*/}}}
+
+#All-in-one function for reading input files /*fold*/{{{ 
+read.chain<-function(file,skip=200,...) { 
+  #Check for file 
+  if (!file.exists(file)) { 
+    stop("File ",file," does not exist!\n")
+  }
+  #Read the header line 
+  header<-data.table::fread(file=file,skip=0,nrows=1)
+  cat<-data.table::fread(file=file,skip=skip,...)
+  #Check for bad header read 
+  if (header[1]=='#') { 
+    header<-header[-1]
+  } 
+  header<-helpRfuncs::vecsplit(header,by='#',n=-1)
+  colnames(cat)<-header
+  return=cat
+}
+#/*fend*/}}}
