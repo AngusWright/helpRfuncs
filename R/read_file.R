@@ -74,7 +74,7 @@ read.chain<-function(file,skip=200,...) {
     stop("File ",file," does not exist!\n")
   }
   #Read the header line 
-  header<-data.table::fread(file=file,skip=0,nrows=1)
+  header<-data.table::fread(file=file,skip=0,nrows=1,header=FALSE)
   cat<-data.table::fread(file=file,skip=skip,...)
   #Check for bad header read 
   if (header[1]=='#') { 
