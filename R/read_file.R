@@ -31,6 +31,10 @@ read.file<-function(file,extname="OBJECTS",...) {
         stop("There is no FITS package installed (Rfits or FITSio)")
       }
     }
+    if (class(hdr)[1]!="try-error") { 
+      warning("Did not find extension:",extname,".\nAssuming the last valid extension (",exten-1,") is correct...")
+      exten<-exten-1 
+    } 
     if ("Rfits" %in% rownames(installed.packages())) { 
       cat<-Rfits::Rfits_read_table(file=file,ext=exten,...)
     } else if ("FITSio" %in% rownames(installed.packages())) {
