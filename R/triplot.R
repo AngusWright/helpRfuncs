@@ -1,9 +1,23 @@
 triplot<-function (chains, samples = 1000, thin = 1, samptype = "end", 
     grid = FALSE, do.tick = FALSE, refvals = NULL, lab = NULL, chain.alpha=1,
-    ...) 
+    weightname='weight', ...) 
 {
     chains = as.data.frame(chains)
     chaincolnames = colnames(chains)
+    if (any(chaincolnames==weightname)) {
+      chains<-chains[which(chains[[weightname]]!=0),]
+      chains<-chains[which(is.finite(chains[[weightname]])),]
+      weight<-chains[[weightname]]
+      chains[[weightname]]<-NULL
+      weighted.sd<-function(x,wt,...) { 
+        xm<-weighted.mean(x,wt,...)
+        v<-weighted.mean((x-xm)^2, wt,...)
+        return=sqrt(v)
+      }
+      chaincolnames = colnames(chains)
+    } else {
+      weight=NULL
+    }
     Nsamp = dim(chains)[1]
     Npar = dim(chains)[2]
     if (!is.null(refvals)) {
@@ -40,8 +54,13 @@ triplot<-function (chains, samples = 1000, thin = 1, samptype = "end",
       usesamps<-1:Nsamp
     }
     for (i in 1:Npar) {
+      if (is.null(weight)) { 
         meanvec = c(meanvec, mean(chains[usesamps, i],na.rm=T))
         sdvec = c(sdvec, sd(chains[usesamps, i],na.rm=T))
+      } else { 
+        meanvec = c(meanvec, weighted.mean(chains[usesamps, i],w=weight[usesamps],na.rm=T))
+        sdvec = c(sdvec, weighted.sd(chains[usesamps, i],w=weight[usesamps],na.rm=T))
+      }
     }
     par(oma = c(4.1, 4.1, 1.1, 1.1))
     for (i in 1:Npar) {
@@ -64,9 +83,13 @@ triplot<-function (chains, samples = 1000, thin = 1, samptype = "end",
                 if (sd(xtemp,na.rm=T) == 0) {
                   xtemp = xtemp + rnorm(samples, sd = 0.001)
                 }
-                plot(density(xtemp,na.rm=T,kern='rect',bw=sd(xtemp,na.rm=T)/sqrt(12)), 
-                     axes = FALSE, main = "", 
-                  xlim = xrange)
+                if (is.null(weight)) { 
+                  plot(density(xtemp,na.rm=T,kern='rect',bw=sd(xtemp,na.rm=T)/sqrt(12)), 
+                       axes = FALSE, main = "",xlim = xrange)
+                } else { 
+                  plot(density(xtemp,weight=weight[usesamps],na.rm=T,kern='rect',bw=sd(xtemp,na.rm=T)/sqrt(12)), 
+                       axes = FALSE, main = "",xlim = xrange)
+                }
                 magicaxis::magaxis(1, grid = grid, grid.col = "lightgrey", 
                   labels = FALSE, do.tick = do.tick)
                 abline(v = meanvec[i], lty = 1, col = "red")
@@ -106,10 +129,17 @@ triplot<-function (chains, samples = 1000, thin = 1, samptype = "end",
                   }
                   magicaxis::magaxis(1:2, grid = grid, grid.col = "lightgrey", 
                     labels = FALSE, do.tick = do.tick)
-                  magicaxis::magcon(xtemp, ytemp, dobar = FALSE, doim = FALSE, 
-                    add = TRUE, lty = c(2, 1, 3), xlim = xrange, 
-                    ylim = yrange, h = c(diff(xrange), diff(yrange))/10, 
-                    ...)
+                  if (is.null(weight)) { 
+                    magicaxis::magcon(xtemp, ytemp, dobar = FALSE, doim = FALSE, 
+                      add = TRUE, lty = c(2, 1, 3), xlim = xrange, 
+                      ylim = yrange, h = c(diff(xrange), diff(yrange))/10, 
+                      ...)
+                  } else { 
+                    magicaxis::magcon(xtemp, ytemp, weight=weight[usesamps],dobar = FALSE, doim = FALSE, 
+                      add = TRUE, lty = c(2, 1, 3), xlim = xrange, 
+                      ylim = yrange, h = c(diff(xrange), diff(yrange))/10, 
+                      ...)
+                  }
                   points(meanvec[i], meanvec[j], col = "red", 
                     pch = 4, cex = 2)
                   box()
@@ -135,8 +165,14 @@ triplot<-function (chains, samples = 1000, thin = 1, samptype = "end",
                   plot.window(xlim = xrange, ylim = yrange)
                   magicaxis::magaxis(1:2, grid = grid, grid.col = "lightgrey", 
                     labels = FALSE, do.tick = do.tick)
-                  points(chains[usesamps, c(i, j)], pch = ".", 
-                    col = seqinr::col2alpha("darkgrey",chain.alpha))
+                  if (is.null(weight)) { 
+                    points(chains[usesamps, c(i, j)], pch = ".", 
+                      col = seqinr::col2alpha("darkgrey",chain.alpha))
+                  } else { 
+                    points(chains[usesamps, c(i, j)], pch = ".", 
+                      cex=magicaxis::magmap(weight[usesamps],range=c(0,1),lo=0,hi=0.9)$map,
+                      col = seqinr::col2alpha("darkgrey",chain.alpha))
+                  }
                   points(meanvec[i], meanvec[j], col = "red", 
                     pch = 4, cex = 2)
                   box()
