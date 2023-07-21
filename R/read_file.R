@@ -18,7 +18,7 @@ read.file<-function(file,extname="OBJECTS",...) {
       if (any(extnames!="")) { 
         exten=rev(which(extnames!=""))[1]
         warning("Did not find extension:",extname,".\nAssuming the last named extension (",exten,
-                ", named",extnames[exten],") is correct...")
+                ", named ",extnames[exten],") is correct...")
       } else { 
         warning("Did not find extension:",extname,".\nThere are no named extensions. Assuming that the last one  (",exten,
                 ") is correct...")
