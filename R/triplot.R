@@ -1,5 +1,5 @@
-triplot<-function (chains, samples = 1000, thin = 1, samptype = "end", 
-    grid = FALSE, do.tick = FALSE, refvals = NULL, lab = NULL, chain.alpha=1,
+triplot<-function (chains, samples = Inf, thin = 1, samptype = "end", 
+    grid = FALSE, do.tick = FALSE, refvals = NULL, lab = NULL, chain.alpha=0.5,
     weightname='weight', ...) 
 {
     chains = as.data.frame(chains)
