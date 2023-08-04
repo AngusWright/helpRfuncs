@@ -4,9 +4,9 @@
 #
 
 hist2D<-function(xf,yf,w,z,zfun=median,x.bin,y.bin,nbins=c(25,25),dx=NULL,dy=NULL,zlog=FALSE,xlim=NULL,ylim=NULL,
-                 palette=grey.colors,ncol=256,colBar=TRUE,flip=FALSE,colmin=0,colmax=1,
+                 palette=grey.colors,ncol=256,colBar=TRUE,flip=FALSE,colmin=0,colmax=1,inset=c(0.05,0.05),
                  zlim=NULL,barloc='topleft',orient='v',barscale=c(0.2,1/20),axes=T,useRaster=TRUE,
-                 titleshift=1.0,add=FALSE,alpha=1,asp=1,plot=TRUE,badval=0,...) {
+                 titleshift=1.0,title.cex=1,label.cex=1,add=FALSE,alpha=1,asp=1,plot=TRUE,badval=0,...) {
  
   #Install/Load the required packages {{{
   if (!plot & (axes | colBar)) { 
@@ -207,9 +207,9 @@ hist2D<-function(xf,yf,w,z,zfun=median,x.bin,y.bin,nbins=c(25,25),dx=NULL,dy=NUL
     }
     #}}}
     if (zlog) {
-      suppressWarnings(magbar(barloc,title="log(Count)",range=zlim,col=col,labN=3,scale=barscale,orient=orient,titleshift=titleshift))
+      suppressWarnings(magbar(barloc,title="log(Count)",range=zlim,col=col,labN=3,scale=barscale,orient=orient,titleshift=titleshift,title.cex=title.cex,cex=label.cex,inset=inset))
     } else {
-      suppressWarnings(magbar(barloc,title="Count",range=zlim,col=col,labN=3,scale=barscale,orient=orient,titleshift=titleshift))
+      suppressWarnings(magbar(barloc,title="Count",range=zlim,col=col,labN=3,scale=barscale,orient=orient,titleshift=titleshift,title.cex=title.cex,cex=label.cex,inset=inset))
     }
   }
   #}}}
