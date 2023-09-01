@@ -67,8 +67,9 @@ showbw<-function(dens,kernel='auto',loc='topleft',scale=0.2,inset=c(0.1,0.1),
     if (is.null(kernel)) { kernel<-'gaussian' }
   }
   #Get number information from call
-  dens.n<-dens$n
+  dens.n<-length(dens$x)
   if (is.null(dens.n)) { dens.n<-512 }
+  if (dens.n>1e4) { dens.n<-1e4 }
   bw<-dens$bw
   #Create Kernel
   kern<-density(rep(0,10),from=-xdiff/2,to=xdiff/2,bw=bw,kernel=kernel,na.rm=TRUE,n=dens.n)
