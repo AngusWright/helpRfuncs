@@ -3,7 +3,7 @@
 # Created by A.H.Wright (2018-10-22)
 #
 
-hist2D<-function(xf,yf,w,z,zfun=median,nbins=c(25,25),dx=NULL,dy=NULL,zlog=FALSE,xlim=NULL,ylim=NULL,
+hist2D<-function(xf,yf,w,z,zfun=median,x.bin,y.bin,nbins=c(25,25),dx=NULL,dy=NULL,zlog=FALSE,xlim=NULL,ylim=NULL,
                  palette=grey.colors,ncol=256,colBar=TRUE,flip=FALSE,colmin=0,colmax=1,inset=c(0.05,0.05),
                  zlim=NULL,barloc='topleft',orient='v',barscale=c(0.2,1/20),axes=T,useRaster=TRUE,
                  titleshift=1.0,title.cex=1,label.cex=1,add=FALSE,alpha=1,asp=1,plot=TRUE,badval=0,...) {
@@ -84,25 +84,38 @@ hist2D<-function(xf,yf,w,z,zfun=median,nbins=c(25,25),dx=NULL,dy=NULL,zlog=FALSE
     ylim=range(y,na.rm=T)
   }
   #}}}
-  #If they exist, use the dx and dy values to define nbins {{{ 
-  if (!is.null(dx)) { 
-    #message("Overwriting nbins[1] with the specified dx!")
-    dx<-abs(dx)
-    nbins[1]<-ceiling(abs(diff(xlim))/dx)
-  } 
-  if (!is.null(dy)) { 
-    #message("Overwriting nbins[2] with the specified dy!")
-    dy<-abs(dy)
-    nbins[2]<-ceiling(abs(diff(ylim))/dy)
+  #If bins aren't given {{{
+  if (missing(x.bin) & missing(y.bin)) { 
+    #If they exist, use the dx and dy values to define nbins {{{ 
+    if (!is.null(dx)) { 
+      #message("Overwriting nbins[1] with the specified dx!")
+      dx<-abs(dx)
+      nbins[1]<-ceiling(abs(diff(xlim))/dx)
+    } 
+    if (!is.null(dy)) { 
+      #message("Overwriting nbins[2] with the specified dy!")
+      dy<-abs(dy)
+      nbins[2]<-ceiling(abs(diff(ylim))/dy)
+    } 
+    #}}}
+    #Set the dx and dy values using nbins {{{
+    dx<-abs(diff(xlim))/nbins[1]
+    dy<-abs(diff(ylim))/nbins[2]
+    #}}}
+    #Define the bin edges {{{
+    x.bin <- seq(min(xlim), max(xlim), length=nbins[1]+1) #These are the edges 
+    y.bin <- seq(min(ylim), max(ylim), length=nbins[2]+1) #These are the edges 
+    #}}}
+    #Save the bin centers {{{
+    bins<-list(x=x.bin[-1]-dx/2,y=y.bin[-1]-dy/2) #These are the centers
+    #}}}
+  } else { 
+    #Save the bin centers {{{
+    bins<-list(x=x.bin[-length(x.bin)]+diff(x.bin)/2,y=y.bin[-length(y.bin)]+diff(y.bin)/2) #These are the centers
+    #}}}
   } 
   #}}}
-  #Set the dx and dy values using nbins {{{
-  dx<-abs(diff(xlim))/nbins[1]
-  dy<-abs(diff(ylim))/nbins[2]
-  #}}}
-  #Define the bin edges {{{
-  x.bin <- seq(min(xlim), max(xlim), length=nbins[1]+1) #These are the edges 
-  y.bin <- seq(min(ylim), max(ylim), length=nbins[2]+1) #These are the edges 
+
   if (!missing(z)) { 
     tmp<-data.frame(x=x,y=y,z=z)
   } else if (!missing(w)) { 
@@ -110,10 +123,9 @@ hist2D<-function(xf,yf,w,z,zfun=median,nbins=c(25,25),dx=NULL,dy=NULL,zlog=FALSE
   } else { 
     tmp<-data.frame(x=x,y=y)
   } 
-  #}}}
+
   #Bin the data {{{
   #> for each pixel, find the most common factor and return the equivalent number density
-  bins<-list(x=x.bin[-1]-dx/2,y=y.bin[-1]-dy/2) #These are the centers
   if (!missing(z)) { 
     freq2D<-with(tmp,tapply(z,list(x=cut(x, breaks=x.bin, include.lowest=T),
                                    y=cut(y, breaks=y.bin, include.lowest=T)),zfun))
@@ -147,6 +159,14 @@ hist2D<-function(xf,yf,w,z,zfun=median,nbins=c(25,25),dx=NULL,dy=NULL,zlog=FALSE
       p.freq2D[which(log10(p.freq2D)<min(zlim))]<-10^min(zlim) 
     }
     if (plot) { 
+      if (useRaster) { 
+        dx<-diff(x.bin)
+        dy<-diff(y.bin)
+        if (any(dx!=dx[1])|any(dy!=dy[1])) { 
+          warning("Cannot use Raster with non-uniform binning") 
+          useRaster<-FALSE
+        } 
+      }
       suppressWarnings(image(bins$x,bins$y, log10(p.freq2D),xlim=xlim,ylim=ylim,col=col,axes=F,xlab="",ylab="",useRaster=useRaster,zlim=zlim,add=add,asp=asp))
     }
   } else {
@@ -159,6 +179,14 @@ hist2D<-function(xf,yf,w,z,zfun=median,nbins=c(25,25),dx=NULL,dy=NULL,zlog=FALSE
       p.freq2D[which((p.freq2D)<min(zlim))]<-min(zlim) 
     }
     if (plot) { 
+      if (useRaster) { 
+        dx<-diff(x.bin)
+        dy<-diff(y.bin)
+        if (any(dx!=dx[1])|any(dy!=dy[1])) { 
+          warning("Cannot use Raster with non-uniform binning") 
+          useRaster<-FALSE
+        } 
+      }
       suppressWarnings(image(bins$x,bins$y, p.freq2D,xlim=xlim,ylim=ylim,col=col,axes=F,xlab="",ylab="",useRaster=useRaster,zlim=zlim,add=add,asp=asp))
     }
   }
