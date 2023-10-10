@@ -1,6 +1,6 @@
 
 #All-in-one function for reading input files /*fold*/{{{ 
-read.file<-function(file,extname="OBJECTS",...) { 
+read.file<-function(file,extname="OBJECTS",cols,...) { 
   #Check for file 
   if (!file.exists(file)) { 
     stop("File ",file," does not exist!\n")
@@ -30,26 +30,59 @@ read.file<-function(file,extname="OBJECTS",...) {
     } else { 
       exten<-which(extnames==extname)
     }
-    cat<-Rfits::Rfits_read_table(file=file,ext=exten,...)
+    basecols=Rfits::Rfits_read_colnames(file,ext=exten)
+    if (missing(cols)) { 
+      cols=basecols
+    } else if (any(!cols%in%basecols)) { 
+      stop(paste("Requested columns not found in catalogue:",paste(collapse=' ',cols[which(!cols%in%basecols)])))
+    }
+    cat<-Rfits::Rfits_read_table(file=file,ext=exten,cols=cols,...)
   } else if (grepl('\\.txt',file,ignore.case=TRUE)){
     if ("data.table" %in% rownames(installed.packages())) { 
+      if (!missing(cols)) { 
+        warning("Cannot read column subset from TXT catalogue; reading all columns")
+      }
       cat<-data.table::fread(file=file,...)
+      if (!missing(cols)) {
+        if (any(!cols%in%colnames(cat))) { 
+          stop(paste("Requested columns were not found in the read catalogue:",paste(collapse=' ',cols[which(!cols%in%colnames(cat))])))
+        }
+      }
     } else { 
       stop("Cannot read txt file: data.table is not installed!")
     }
   } else if (grepl('\\.asc',file,ignore.case=TRUE)){
     if ("data.table" %in% rownames(installed.packages())) { 
+      if (!missing(cols)) { 
+        warning("Cannot read column subset from ASCII catalogue; reading all columns")
+      }
       cat<-data.table::fread(file=file,...)
+      if (!missing(cols)) {
+        if (any(!cols%in%colnames(cat))) { 
+          stop(paste("Requested columns were not found in the read catalogue:",paste(collapse=' ',cols[which(!cols%in%colnames(cat))])))
+        }
+      }
     } else { 
       stop("Cannot read ascii file: data.table is not installed!")
     }
   } else if (grepl('\\.csv',file,ignore.case=TRUE)){
     if ("data.table" %in% rownames(installed.packages())) { 
+      if (!missing(cols)) { 
+        warning("Cannot read column subset from CSV catalogue; reading all columns")
+      }
       cat<-data.table::fread(file=file,...)
+      if (!missing(cols)) {
+        if (any(!cols%in%colnames(cat))) { 
+          stop(paste("Requested columns were not found in the read catalogue:",paste(collapse=' ',cols[which(!cols%in%colnames(cat))])))
+        }
+      }
     } else { 
       stop("Cannot read CSV file: data.table is not installed!")
     }
   } else if (grepl('\\.Rdata',file,ignore.case=TRUE)){
+    if (!missing(cols)) { 
+      warning("Cannot load column subset from Rdata catalogue; loading all columns")
+    }
     nam<-load(file=file,...)
     if (nam=='nam') { 
       #Whoops, we overwrote the catalogue...
@@ -57,6 +90,21 @@ read.file<-function(file,extname="OBJECTS",...) {
       cat<-get(tmp.nam)
     } else if (nam!='cat') { 
       cat<-get(nam)
+    }
+    if (!missing(cols)) {
+      if (any(!cols%in%colnames(cat))) { 
+        stop(paste("Requested columns were not found in the read catalogue:",paste(collapse=' ',cols[which(!cols%in%colnames(cat))])))
+      }
+    }
+  } else if (grepl('\\.rds',file,ignore.case=TRUE)){
+    if (!missing(cols)) { 
+      warning("Cannot load column subset from RDS catalogue; loading all columns")
+    }
+    cat<-readRDS(file=file,...)
+    if (!missing(cols)) {
+      if (any(!cols%in%colnames(cat))) { 
+        stop(paste("Requested columns were not found in the read catalogue:",paste(collapse=' ',cols[which(!cols%in%colnames(cat))])))
+      }
     }
   } else { 
     stop(paste0("Unknown extension (not fits/cat/asc/txt/csv/Rdata) on file:\n",file))
