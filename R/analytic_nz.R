@@ -3,7 +3,7 @@
 # File Name :
 # Created By : awright
 # Creation Date : 18-10-2023
-# Last Modified : Wed 18 Oct 2023 08:08:21 AM UTC
+# Last Modified : Wed 18 Oct 2023 08:36:24 AM UTC
 #
 #=========================================
 
@@ -25,6 +25,8 @@ analytic_nz<-function(filter,maglim,safe=TRUE) {
   } else if (filter=='Z') {
     amp  <-c(-402537.94475, 76055.74692 ,-5359.1043631, 166.71312498, -1.9273789539)
     slope<-c(     95.96844,   -15.36934 ,    0.9333136,  -0.02524991,  0.0002562967)
+  } else { 
+    stop(paste("Uknown filter:",filter))
   }
 
   #Estimate the Nz for this sample with these parameters 
