@@ -3,12 +3,12 @@
 # File Name :
 # Created By : awright
 # Creation Date : 18-10-2023
-# Last Modified : Wed 18 Oct 2023 08:29:57 AM CEST
+# Last Modified : Wed 18 Oct 2023 08:08:21 AM UTC
 #
 #=========================================
 
 #The magnitude-limited Nz distribution /*fold*/ {{{
-analytic_nz<-function(filter,maglim) {
+analytic_nz<-function(filter,maglim,safe=TRUE) {
   #Coefficients from fitting to SURFS+Shark lightcone
   if (filter=='u'){
     amp  <-c( 44106.97570, -8561.65951 ,  623.7589957, -20.31245697,  0.2512547888)
@@ -27,10 +27,29 @@ analytic_nz<-function(filter,maglim) {
     slope<-c(     95.96844,   -15.36934 ,    0.9333136,  -0.02524991,  0.0002562967)
   }
 
+  #Estimate the Nz for this sample with these parameters 
   polyn<-function(x,c) return=c[1]+c[2]*x+c[3]*x^2+c[4]*x^3+c[5]*x^4
   z<-seq(0,7,by=0.001)
-  amp0<-polyn(maglim,amp)
-  slope0<-polyn(maglim,slope)
-  nz<-approxfun(x=z,y=amp0*z^2*exp(-(z/0.1)^slope0))
+  #Check that the requested magnitude limits are within the modelled range
+  if (maglim>17 | !safe) { 
+    if (maglim>27) { 
+      warning("Magnitude limit provided is outside modelled limits [18,26]")
+      if (safe) { 
+        cat("Forcing magnitude limit to 27 to minimise extrapolation...") 
+        maglim<-27
+      }
+    }
+    #Get the amplitude value 
+    amp0<-polyn(maglim,amp)
+    #Get the slope value 
+    slope0<-polyn(maglim,slope)
+    #Estimate the Nz
+    nz<-approxfun(x=z,y=amp0*z^2*exp(-(z/0.1)^slope0))
+  } else if (maglim<=17) { 
+    #Set the Nz to zero 
+    warning("Magnitude limit provided is brighter than the modelled limits [18,26]. Setting Nz to zero!")
+    nz<-approxfun(x=z,y=rep(0,length(z)))
+  }
   return=nz
 }
+
