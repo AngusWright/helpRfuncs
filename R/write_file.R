@@ -1,6 +1,6 @@
 
 #All-in-one function for writing output files /*fold*/{{{ 
-write.file<-function(file,cat,quote=FALSE,row.names=FALSE,col.names=TRUE,...) { 
+write.file<-function(file,cat,quote=FALSE,row.names=FALSE,col.names=TRUE,verbose=FALSE,...) { 
   #Determine the desired file type and output it
   if (grepl('\\.fits',file,ignore.case=TRUE)){
     #Write as FITS {{{
@@ -17,7 +17,7 @@ write.file<-function(file,cat,quote=FALSE,row.names=FALSE,col.names=TRUE,...) {
     }
     #/*fend*/}}}
     #Write to output file {{{
-    Rfits::Rfits_write_table(file=file,cat,...)
+    Rfits::Rfits_write_table(file=file,cat,verbose=verbose,...)
     #}}}
     #}}}
   } else if (grepl('\\.cat',file,ignore.case=TRUE)){
@@ -65,7 +65,7 @@ write.file<-function(file,cat,quote=FALSE,row.names=FALSE,col.names=TRUE,...) {
     #use short int for the FIELD_POS
     cattypes[which(colnames(cat)=='FIELD_POS')]<-'1I'
     #Write the OBJECTS 
-    Rfits::Rfits_write_table(file=file,cat,tforms=cattypes,verbose=TRUE,extname="OBJECTS")
+    Rfits::Rfits_write_table(file=file,cat,tforms=cattypes,extname="OBJECTS",verbose=verbose)
     #}}}
     #Write the FIELDS extension {{{
     #Construct the FIELDS table 
@@ -79,10 +79,14 @@ write.file<-function(file,cat,quote=FALSE,row.names=FALSE,col.names=TRUE,...) {
     extn<-Rfits::Rfits_extnames(filename=file)
     #Write the FIELDS table 
     Rfits::Rfits_write_table(file=file,fields,extname="FIELDS",ext=length(extn)+1,tforms=cattypes,tadd=fcomms,
-                           overwrite_file=FALSE,create_file=FALSE,verbose=TRUE,create_ext=TRUE)
+                           overwrite_file=FALSE,create_file=FALSE,verbose=verbose,create_ext=TRUE)
     #}}}
     #}}}
   } else if (grepl('\\.txt',file,ignore.case=TRUE)){
+    #Write to ascii {{{
+    write.table(file=file,cat,quote=quote,row.names=row.names,col.names=col.names,...)
+    #}}}
+  } else if (grepl('\\.dat',file,ignore.case=TRUE)){
     #Write to ascii {{{
     write.table(file=file,cat,quote=quote,row.names=row.names,col.names=col.names,...)
     #}}}
