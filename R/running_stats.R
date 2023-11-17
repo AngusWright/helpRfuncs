@@ -98,7 +98,12 @@ running_stats<-function (x, y, weight, bins = 10, type = "median",
             cdf = wtd_ecdf(checkvec,w)
             breaks = approxfun(x=cdf(seq(min(checkvec),max(checkvec),length=max(bins*10,1e4))),
                                y=seq(min(checkvec),max(checkvec),length=max(bins*10,1e4)),
-                               ties='ordered')(seq(0, 1, len = bins + 1))
+                               method='constant',ties='ordered')(seq(0, 1, len = bins + 1))
+            if (any(duplicated(breaks))) { 
+              warning(paste("cannot construct",bins,"equal-N bins, because binning variable is discrete;"
+                           "using",length(which(!duplicated(breaks)))-1,"bins instead\n"))
+              breaks=breaks[!duplicated(breaks)]
+            }
           } else { 
             breaks = quantile(checkvec, seq(0, 1, len = bins + 1))
           }
