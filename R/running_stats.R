@@ -100,7 +100,7 @@ running_stats<-function (x, y, weight, bins = 10, type = "median",
                                y=seq(min(checkvec),max(checkvec),length=max(bins*10,1e4)),
                                method='constant',ties='ordered')(seq(0, 1, len = bins + 1))
             if (any(duplicated(breaks))) { 
-              warning(paste("cannot construct",bins,"equal-N bins, because binning variable is discrete;"
+              warning(paste("cannot construct",bins,"equal-N bins, because binning variable is discrete;",
                            "using",length(which(!duplicated(breaks)))-1,"bins instead\n"))
               breaks=breaks[!duplicated(breaks)]
             }
