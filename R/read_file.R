@@ -7,6 +7,7 @@ read.file<-function(file,extname="OBJECTS",cols,...) {
   }
   #Determine the desired file type and output it
   if (grepl('\\.fits',file,ignore.case=TRUE)|grepl('\\.cat',file,ignore.case=TRUE)){
+    #FITS & LDAC {{{ 
     hdr<-list(keyvalues=list(NAXIS=0))
     exten=1
     if (!"Rfits" %in% rownames(installed.packages())) { 
@@ -37,7 +38,9 @@ read.file<-function(file,extname="OBJECTS",cols,...) {
       stop(paste("Requested columns not found in catalogue:",paste(collapse=' ',cols[which(!cols%in%basecols)])))
     }
     cat<-Rfits::Rfits_read_table(file=file,ext=exten,cols=cols,...)
-  } else if (grepl('\\.txt',file,ignore.case=TRUE)){
+    #}}}
+  } else if (grepl('\\.txt',file,ignore.case=TRUE)|grepl('\\.dat',file,ignore.case=TRUE)){
+    #Text {{{
     if ("data.table" %in% rownames(installed.packages())) { 
       if (!missing(cols)) { 
         warning("Cannot read column subset from TXT catalogue; reading all columns")
@@ -51,7 +54,9 @@ read.file<-function(file,extname="OBJECTS",cols,...) {
     } else { 
       stop("Cannot read txt file: data.table is not installed!")
     }
+    #}}}
   } else if (grepl('\\.asc',file,ignore.case=TRUE)){
+    #ASCII {{{
     if ("data.table" %in% rownames(installed.packages())) { 
       if (!missing(cols)) { 
         warning("Cannot read column subset from ASCII catalogue; reading all columns")
@@ -65,7 +70,9 @@ read.file<-function(file,extname="OBJECTS",cols,...) {
     } else { 
       stop("Cannot read ascii file: data.table is not installed!")
     }
+    #}}}
   } else if (grepl('\\.csv',file,ignore.case=TRUE)){
+    #CSV {{{
     if ("data.table" %in% rownames(installed.packages())) { 
       if (!missing(cols)) { 
         warning("Cannot read column subset from CSV catalogue; reading all columns")
@@ -79,7 +86,9 @@ read.file<-function(file,extname="OBJECTS",cols,...) {
     } else { 
       stop("Cannot read CSV file: data.table is not installed!")
     }
+    #}}}
   } else if (grepl('\\.Rdata',file,ignore.case=TRUE)){
+    #Rdata {{{
     if (!missing(cols)) { 
       warning("Cannot load column subset from Rdata catalogue; loading all columns")
     }
@@ -96,7 +105,9 @@ read.file<-function(file,extname="OBJECTS",cols,...) {
         stop(paste("Requested columns were not found in the read catalogue:",paste(collapse=' ',cols[which(!cols%in%colnames(cat))])))
       }
     }
+    #}}}
   } else if (grepl('\\.rds',file,ignore.case=TRUE)){
+    #RDS {{{
     if (!missing(cols)) { 
       warning("Cannot load column subset from RDS catalogue; loading all columns")
     }
@@ -106,8 +117,33 @@ read.file<-function(file,extname="OBJECTS",cols,...) {
         stop(paste("Requested columns were not found in the read catalogue:",paste(collapse=' ',cols[which(!cols%in%colnames(cat))])))
       }
     }
+    #}}}
+  } else if (grepl('\\.feather',file,ignore.case=TRUE)){
+    #Feather {{{
+    if ("arrow" %in% rownames(installed.packages())) { 
+      if (!missing(cols)) { 
+        cat<-arrow::read_feather(file=file,col_select=cols,...)
+      } else { 
+        cat<-arrow::read_feather(file=file,...)
+      }
+    } else { 
+      stop("Cannot read feather file: arrow is not installed!")
+    }
+    #}}}
+  } else if (grepl('\\.parquet',file,ignore.case=TRUE)){
+    #Parquet {{{
+    if ("arrow" %in% rownames(installed.packages())) { 
+      if (!missing(cols)) { 
+        cat<-arrow::read_parquet(file=file,col_select=cols,...)
+      } else { 
+        cat<-arrow::read_parquet(file=file,...)
+      }
+    } else { 
+      stop("Cannot read parquet file: arrow is not installed!")
+    }
+    #}}}
   } else { 
-    stop(paste0("Unknown extension (not fits/cat/asc/txt/csv/Rdata) on file:\n",file))
+    stop(paste0("Unknown extension (not fits/cat/asc/txt/dat/csv/Rdata/RDS/feather/parquet) on file:\n",file))
   }
   #Check for bad header read 
   if (colnames(cat)[1]=='#') { 
