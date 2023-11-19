@@ -118,7 +118,7 @@ read.file<-function(file,extname="OBJECTS",cols,...) {
       }
     }
     #}}}
-  } else if (grepl('\\.feather',file,ignore.case=TRUE)){
+  } else if (grepl('\\.feather',file,ignore.case=TRUE)|grepl('\\.arrow',file,ignore.case=TRUE)){
     #Feather {{{
     if ("arrow" %in% rownames(installed.packages())) { 
       if (!missing(cols)) { 
@@ -143,7 +143,7 @@ read.file<-function(file,extname="OBJECTS",cols,...) {
     }
     #}}}
   } else { 
-    stop(paste0("Unknown extension (not fits/cat/asc/txt/dat/csv/Rdata/RDS/feather/parquet) on file:\n",file))
+    stop(paste0("Unknown extension (not fits/cat/asc/txt/dat/csv/Rdata/RDS/arrow/feather/parquet) on file:\n",file))
   }
   #Check for bad header read 
   if (colnames(cat)[1]=='#') { 
