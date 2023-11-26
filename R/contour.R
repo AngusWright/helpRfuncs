@@ -54,15 +54,6 @@ contour<-function (x, y, z, h, doim = TRUE, docon = TRUE, dobar = TRUE, ngrid = 
   use = use & x >= min(xlim) & x <= max(xlim) & y >= min(ylim) & 
     y <= max(ylim)
   #}}}
-  #Only use valid x/y data {{{
-  x = x[use]
-  y = y[use]
-  #}}}
-  #If provided, only use valid z data {{{
-  if (!missing(z)) { 
-    z = z[use]
-  }
-  #}}}
   #If provided, check the length of the weights {{{
   if (is.null(weights) == FALSE) {
     if (length(weights) == length(x)) {
@@ -72,6 +63,15 @@ contour<-function (x, y, z, h, doim = TRUE, docon = TRUE, dobar = TRUE, ngrid = 
       #Error 
       stop("weights must match lengths of x / y")
     }
+  }
+  #}}}
+  #Only use valid x/y data {{{
+  x = x[use]
+  y = y[use]
+  #}}}
+  #If provided, only use valid z data {{{
+  if (!missing(z)) { 
+    z = z[use]
   }
   #}}}
   #Define the contour levels as integrating from peak down {{{
