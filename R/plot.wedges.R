@@ -141,7 +141,7 @@
 
 }
 
-plotCone <- function (ra, dec, z, OmegaM=0.25, OmegaL=0.75, H0=100,add=FALSE,col='black',asp=1,limits=NULL,ramult=1,main='',orient='v',
+plotCone<-plot.cone<-function (ra, dec, z, OmegaM=0.25, OmegaL=0.75, H0=100,add=FALSE,col='black',asp=1,limits=NULL,ramult=1,main='',orient='v',
                       side=1:3,trace=FALSE,textsize=1,labels=TRUE,buffer=0.1,mainloc='bottom',main.inset=0.1,
                       titleshift=0.2,ralab='RA (deg)',zlab=expression(italic(z)),textangle=c(0,0),...) {
 
@@ -154,6 +154,20 @@ plotCone <- function (ra, dec, z, OmegaM=0.25, OmegaL=0.75, H0=100,add=FALSE,col
     plot_rotation<- -90
   } else { 
     stop(paste("unknown orientation",orient))
+  }
+  if (!is.null(limits)) { 
+    if (is.null(limits$ralim)) { 
+      warning("no ralim supplied with limits: using input data RA range") 
+      limits$ralim<-range(ra,na.rm=T)
+    }
+    if (is.null(limits$declim)) { 
+      warning("no declim supplied with limits: using input data Dec range") 
+      limits$declim<-range(dec,na.rm=T)
+    }
+    if (is.null(limits$zlim)) { 
+      warning("no zlim supplied with limits: using input data z range") 
+      limits$zlim<-range(z,na.rm=T)
+    }
   }
 
   #Cut data to provided limits 
@@ -202,7 +216,7 @@ plotCone <- function (ra, dec, z, OmegaM=0.25, OmegaL=0.75, H0=100,add=FALSE,col
                 ralab=ralab,zlab=zlab,
                 OmegaM=OmegaM, OmegaL=OmegaL, H0=H0,
                 ramean=ramean,ramult=ramult,trace=trace,main=main)
-    return=data.frame(ralim=range(ralims),declim=limits$declim,zlim=limits$zlim)
+    return=data.frame(ralim=range(ralims_use),declim=limits$declim,zlim=limits$zlim)
   } else {
     #Use data limits 
     if (add) { warning("Adding without specified plot limits! Plot will likely be misaligned") }
