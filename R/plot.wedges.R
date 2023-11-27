@@ -125,7 +125,9 @@
     if (trace) { 
       points(x=(par('usr')[1]+par('usr')[2])/2+titleshift.x,y=par('usr')[3]+titleshift.y,pch=0,col='purple',cex=2)
     }
-    text(x=(par('usr')[1]+par('usr')[2])/2+titleshift.x,y=par('usr')[3]+titleshift.y,label=paste(min(zlim), " < z < ", max(zlim), "\n",min(declim), " < Dec < ", max(declim),sep=""),cex=textsize, srt=textangle[2])
+    text(x=(par('usr')[1]+par('usr')[2])/2+titleshift.x,y=par('usr')[3]+titleshift.y,
+         label=paste(round(digits=4,min(zlim)), " < z < ", round(digits=4,max(zlim)), "\n",
+                     round(min(declim),digits=4), " < Dec < ", round(digits=4,max(declim)),sep=""),cex=textsize, srt=textangle[2])
   }
 
   if(labels){
