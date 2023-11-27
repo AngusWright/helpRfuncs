@@ -193,7 +193,7 @@ read.file<-function(file,extname="OBJECTS",cols,type,...) {
   if (any(colnames(cat)==paste0("V",1:ncol(cat))) & !all(colnames(cat)==paste0("V",1:ncol(cat)))) { 
     #File was read with partial header information
     warning(paste0("The catalogue has been read with partial header information?!\nThe available column names are: ",
-                   paste(collapse=' ',colnames(cat)[which(colnames(cat)!=paste0("V",1:ncol(cat)))])"\nIs this file in Robenjamert format?!"))
+                   paste(collapse=' ',colnames(cat)[which(colnames(cat)!=paste0("V",1:ncol(cat)))]),"\nIs this file in Robenjamert format?!"))
   }
   return=cat
 }
