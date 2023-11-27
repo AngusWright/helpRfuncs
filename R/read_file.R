@@ -1,12 +1,37 @@
 
 #All-in-one function for reading input files /*fold*/{{{ 
-read.file<-function(file,extname="OBJECTS",cols,...) { 
+read.file<-function(file,extname="OBJECTS",cols,type,...) { 
   #Check for file 
   if (!file.exists(file)) { 
     stop("File ",file," does not exist!\n")
   }
-  #Determine the desired file type and output it
-  if (grepl('\\.fits',file,ignore.case=TRUE)|grepl('\\.cat',file,ignore.case=TRUE)){
+  #Automatically detect file type{{{
+  if (missing(type)) { 
+    if (grepl('\\.fits',file,ignore.case=TRUE)|grepl('\\.cat',file,ignore.case=TRUE)){
+      type='fits'
+    } else if (grepl('\\.txt',file,ignore.case=TRUE)|grepl('\\.dat',file,ignore.case=TRUE)){
+      type='text'
+    } else if (grepl('\\.asc',file,ignore.case=TRUE)){
+      type='ascii'
+    } else if (grepl('\\.csv',file,ignore.case=TRUE)){
+      type='csv'
+    } else if (grepl('\\.Rdata',file,ignore.case=TRUE)){
+      type='rdata'
+    } else if (grepl('\\.rds',file,ignore.case=TRUE)){
+      type='rds'
+    } else if (grepl('\\.feather',file,ignore.case=TRUE)|grepl('\\.arrow',file,ignore.case=TRUE)){
+      type='feather'
+    } else if (grepl('\\.parquet',file,ignore.case=TRUE)){
+      type='parquet'
+    } else { 
+      stop(paste0("Cannot automatically detect type: Unknown extension (not fits/cat/ascii/txt/dat/csv/Rdata/RDS/arrow/feather/parquet) on file:\n",file))
+    }
+  } else { 
+    type=match.arg(tolower(type),c("fits","cat","ascii","text","txt","dat","csv","rdata","rds","arrow","feather","parquet"))
+  }
+  #}}}
+  #Read the desired file type and output it
+  if (type%in%c('fits',"cat")) { 
     #FITS & LDAC {{{ 
     hdr<-list(keyvalues=list(NAXIS=0))
     exten=1
@@ -39,7 +64,7 @@ read.file<-function(file,extname="OBJECTS",cols,...) {
     }
     cat<-Rfits::Rfits_read_table(file=file,ext=exten,cols=cols,...)
     #}}}
-  } else if (grepl('\\.txt',file,ignore.case=TRUE)|grepl('\\.dat',file,ignore.case=TRUE)){
+  } else if (type%in%c('text',"txt","dat")) { 
     #Text {{{
     if ("data.table" %in% rownames(installed.packages())) { 
       if (!missing(cols)) { 
@@ -55,7 +80,7 @@ read.file<-function(file,extname="OBJECTS",cols,...) {
       stop("Cannot read txt file: data.table is not installed!")
     }
     #}}}
-  } else if (grepl('\\.asc',file,ignore.case=TRUE)){
+  } else if (type=='ascii'){ 
     #ASCII {{{
     if ("data.table" %in% rownames(installed.packages())) { 
       if (!missing(cols)) { 
@@ -71,7 +96,7 @@ read.file<-function(file,extname="OBJECTS",cols,...) {
       stop("Cannot read ascii file: data.table is not installed!")
     }
     #}}}
-  } else if (grepl('\\.csv',file,ignore.case=TRUE)){
+  } else if (type=='csv') { 
     #CSV {{{
     if ("data.table" %in% rownames(installed.packages())) { 
       if (!missing(cols)) { 
@@ -87,7 +112,7 @@ read.file<-function(file,extname="OBJECTS",cols,...) {
       stop("Cannot read CSV file: data.table is not installed!")
     }
     #}}}
-  } else if (grepl('\\.Rdata',file,ignore.case=TRUE)){
+  } else if (type=='Rdata') { 
     #Rdata {{{
     if (!missing(cols)) { 
       warning("Cannot load column subset from Rdata catalogue; loading all columns")
@@ -106,7 +131,7 @@ read.file<-function(file,extname="OBJECTS",cols,...) {
       }
     }
     #}}}
-  } else if (grepl('\\.rds',file,ignore.case=TRUE)){
+  } else if (type=='rds') {
     #RDS {{{
     if (!missing(cols)) { 
       warning("Cannot load column subset from RDS catalogue; loading all columns")
@@ -118,7 +143,7 @@ read.file<-function(file,extname="OBJECTS",cols,...) {
       }
     }
     #}}}
-  } else if (grepl('\\.feather',file,ignore.case=TRUE)|grepl('\\.arrow',file,ignore.case=TRUE)){
+  } else if (type%in%c('feather',"arrow")) { 
     #Feather {{{
     if ("arrow" %in% rownames(installed.packages())) { 
       if (!missing(cols)) { 
@@ -130,7 +155,7 @@ read.file<-function(file,extname="OBJECTS",cols,...) {
       stop("Cannot read feather file: arrow is not installed!")
     }
     #}}}
-  } else if (grepl('\\.parquet',file,ignore.case=TRUE)){
+  } else if (type=='parquet'){ 
     #Parquet {{{
     if ("arrow" %in% rownames(installed.packages())) { 
       if (!missing(cols)) { 
