@@ -175,8 +175,26 @@ read.file<-function(file,extname="OBJECTS",cols,type,...) {
     warning("The file header was read incorrectly due to a leading '#'. Correcting.")
     #We read the comment charachter as a column name. Shift all names across one 
     colnames(cat)<-c(colnames(cat)[-1],"#")
-    cat[["#"]]<-NULL
+    if (any(colnames(cat)==paste0("V",1:ncol(cat)+1))) { 
+      ind<-which(colnames(cat)==paste0("V",1:ncol(cat)+1))
+      colnames(cat)[ind]<-paste0("V",ind)
+    }
+    if (all(is.na(cat[["#"]]))) { 
+      cat[["#"]]<-NULL
+    } else { 
+      colnames(cat)[ncol(cat)]<-paste0("V",ncol(cat))
+    }
+    if (any(duplicated(colnames(cat)))) { 
+      ind<-which(duplicated(colnames(cat)))
+      warning(paste("catalogue has",length(ind),"duplicated column name(s); these are appended with their column number"))
+      colnames(cat)[ind]<-paste0(colnames(cat)[ind],"_","V",ind)
+    }
   } 
+  if (any(colnames(cat)==paste0("V",1:ncol(cat))) & !all(colnames(cat)==paste0("V",1:ncol(cat)))) { 
+    #File was read with partial header information
+    warning(paste0("The catalogue has been read with partial header information?!\nThe available column names are: ",
+                   paste(collapse=' ',colnames(cat)[which(colnames(cat)!=paste0("V",1:ncol(cat)))])"\nIs this file in Robenjamert format?!"))
+  }
   return=cat
 }
 #/*fend*/}}}
