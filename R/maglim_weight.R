@@ -3,7 +3,7 @@
 # File Name : maglim_weight.R
 # Created By : awright
 # Creation Date : 17-10-2023
-# Last Modified : Tue 17 Oct 2023 11:53:31 AM UTC
+# Last Modified : Thu 07 Dec 2023 12:40:26 PM CET
 #
 #=========================================
 
@@ -26,7 +26,7 @@ maglim_weight<-function(zspec,mag.lim=23.5,filter='r',ref=737) {
   return=maglim_weight
 }
 
-analytic_nz<-function(z.limits,mag.lim=23.5,filter='r',ref=737,area=180) { 
+analytic_nz_schec<-function(z.limits,mag.lim=23.5,filter='r',ref=737,area=180) { 
   #Define the magnitude Schechter function 
   MF2=function(M,phi,Ms,a){0.4*log(10)*phi*exp(-10^(0.4*(Ms-M)))*10^(0.4*(a+1)*(Ms-M))}
   #Define the Luminosity function 
