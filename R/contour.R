@@ -50,9 +50,14 @@ contour<-function (x, y, z, h, doim = TRUE, docon = TRUE, dobar = TRUE, ngrid = 
     ylim = range(y[use], na.rm = TRUE)
   }
   #}}}
-  #Only use data within the x and y limits {{{
-  use = use & x >= min(xlim) & x <= max(xlim) & y >= min(ylim) & 
-    y <= max(ylim)
+  if (any(!is.finite(h))) { 
+    htmp <- h.select(x = cbind(x,y), y = NA, weights = weights,nbins = 0)
+  } else { 
+    htmp <- h 
+  }
+  #Only use data within 5 sigma of the x and y limits {{{
+  use = use & x >= (min(xlim) - 5*htmp[1]) & x <= (max(xlim) + 5*htmp[1]) & 
+              y >= (min(ylim) - 5*htmp[2]) & y <= (max(ylim) + 5*htmp[2])
   #}}}
   #If provided, check the length of the weights {{{
   if (is.null(weights) == FALSE) {
@@ -115,7 +120,7 @@ contour<-function (x, y, z, h, doim = TRUE, docon = TRUE, dobar = TRUE, ngrid = 
   #}}}
   #}}}
   #Generate the level map {{{
-  levelmap = approxfun(convfunc(seq(0, 1, len = 1000) * max(tempsum)), 
+  levelmap = approxfun(convfunc(seq(min(tempsum), max(tempsum), len = 1000)), 
                        seq(0, 1, len = 1000))
   #}}}
   #Convert the image to the level map {{{
@@ -169,7 +174,7 @@ contour<-function (x, y, z, h, doim = TRUE, docon = TRUE, dobar = TRUE, ngrid = 
   #}}}
   #If requested, draw the colourbar {{{
   if (dobar) {
-    magbar(position = barposition, range = c(0, 100), orient = barorient, 
+    helpRfuncs::magbar(position = barposition, range = c(0, 100), orient = barorient, 
            col = rev(imcol), title = bartitle, titleshift = bartitleshift)
   }
   #}}}
