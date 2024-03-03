@@ -200,7 +200,7 @@ read.file<-function(file,extname="OBJECTS",cols,type,...) {
 #/*fend*/}}}
 
 #All-in-one function for reading input files /*fold*/{{{ 
-read.chain<-function(file,skip=200,...) { 
+read.chain<-function(file,skip=200,strip_labels=TRUE,...) { 
   #Check for file 
   if (!file.exists(file)) { 
     stop("File ",file," does not exist!\n")
@@ -213,6 +213,12 @@ read.chain<-function(file,skip=200,...) {
     header<-header[-1]
   } 
   header<-helpRfuncs::vecsplit(header,by='#',n=-1)
+  if (strip_labels) { 
+    header<-gsub("cosmological_parameters--","",header,ignore.case=TRUE)
+    header<-gsub("nofz_shifts--","nz_",header,ignore.case=TRUE)
+    header<-gsub("halo_model_parameters--","hm_",header,ignore.case=TRUE)
+    header<-gsub("intrinsic_alignment_parameters--","ia_",header,ignore.case=TRUE)
+  }
   colnames(cat)<-header
   return=cat
 }
