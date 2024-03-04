@@ -200,13 +200,18 @@ read.file<-function(file,extname="OBJECTS",cols,type,...) {
 #/*fend*/}}}
 
 #All-in-one function for reading input files /*fold*/{{{ 
-read.chain<-function(file,skip=200,strip_labels=TRUE,...) { 
+read.chain<-function(file,skip=20,strip_labels=TRUE,...) { 
   #Check for file 
   if (!file.exists(file)) { 
     stop("File ",file," does not exist!\n")
   }
   #Read the header line 
   header<-data.table::fread(file=file,skip=0,nrows=1,header=FALSE)
+  cat<-data.table::fread(file=file,skip=skip,nrow=1,...)
+  while (grepl("#",cat[[1]][1])) { 
+    skip=skip+1
+    cat<-data.table::fread(file=file,skip=skip,nrow=1,...)
+  }
   cat<-data.table::fread(file=file,skip=skip,...)
   #Check for bad header read 
   if (header[1]=='#') { 
