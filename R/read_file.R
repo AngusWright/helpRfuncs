@@ -207,10 +207,12 @@ read.chain<-function(file,skip=1,strip_labels=TRUE,...) {
   }
   #Read the header line 
   header<-data.table::fread(file=file,skip=0,nrows=1,header=FALSE)
+  if (any(dim(header)==0)) return(header)
   cat<-data.table::fread(file=file,skip=skip,nrow=1,header=FALSE)
   while (grepl("#",cat[[1]][1])) { 
     skip=skip+1
     cat<-data.table::fread(file=file,skip=skip,nrow=1,header=FALSE)
+    if (any(dim(cat)<1)) cat<-data.frame(dummy="#")
   }
   cat<-data.table::fread(file=file,skip=skip-1,header=FALSE,...)
   #Check for bad header read 
