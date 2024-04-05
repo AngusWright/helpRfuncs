@@ -5,8 +5,8 @@
 
 hist2D<-function(xf,yf,w,z,zfun=median,x.bin,y.bin,nbins=c(25,25),dx=NULL,dy=NULL,zlog=FALSE,xlim=NULL,ylim=NULL,
                  palette=grey.colors,ncol=256,colBar=TRUE,flip=FALSE,colmin=0,colmax=1,inset=0.05,
-                 zlim=NULL,barloc='topleft',orient='v',barscale=c(0.2,1/20),axes=T,useRaster=TRUE,
-                 titleshift=1.0,title.cex=1,labels=c(T,T,F,F),side=1:4,label.cex=1,add=FALSE,alpha=1,asp=1,plot=TRUE,badval=0,
+                 zlim=NULL,barloc='left',orient='v',barscale=c(0.5,1/20),axes=T,useRaster=TRUE,
+                 titleshift=1.5,title.cex=1,labels=c(T,T,F,F),side=1:4,label.cex=1,add=FALSE,alpha=1,asp=1,plot=TRUE,badval=0,
                  ...) {
  
   #> Define the title tables before they are evaluated {{{
