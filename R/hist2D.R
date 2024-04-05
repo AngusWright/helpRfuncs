@@ -135,11 +135,11 @@ hist2D<-function(xf,yf,w,z,zfun=median,x.bin,y.bin,nbins=c(25,25),dx=NULL,dy=NUL
   if (!missing(z)) { 
     freq2D<-with(tmp,tapply(z,list(x=cut(x, breaks=x.bin, include.lowest=T),
                                    y=cut(y, breaks=y.bin, include.lowest=T)),zfun))
-    tlab=paste0(as.character(substitute(zfun)),"(",as.character(substitute(z)),")")
+    tlab=paste0(as.character(substitute(zfun)),"(",as.character(substitute(z)),")")[1]
   } else if (!missing(w)) { 
     freq2D<-with(tmp,tapply(w,list(x=cut(x, breaks=x.bin, include.lowest=T),
                                    y=cut(y, breaks=y.bin, include.lowest=T)),sum))
-    tlab=paste0('Sum(',as.character(substitute(w)),')')
+    tlab=paste0('Sum(',as.character(substitute(w)),')')[1]
   } else { 
     freq2D<-with(tmp,tapply(x,list(x=cut(x, breaks=x.bin, include.lowest=T),
                                    y=cut(y, breaks=y.bin, include.lowest=T)),length))
