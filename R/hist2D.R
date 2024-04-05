@@ -9,6 +9,15 @@ hist2D<-function(xf,yf,w,z,zfun=median,x.bin,y.bin,nbins=c(25,25),dx=NULL,dy=NUL
                  titleshift=1.0,title.cex=1,labels=c(T,T,F,F),side=1:4,label.cex=1,add=FALSE,alpha=1,asp=1,plot=TRUE,badval=0,
                  ...) {
  
+  #> Define the title tables before they are evaluated {{{
+  if (!missing(z)) { 
+    tlab=paste0(as.character(substitute(zfun)),"(",as.character(substitute(z)),")")[1]
+  } else if (!missing(w)) { 
+    tlab=paste0('Sum(',as.character(substitute(w)),')')[1]
+  } else { 
+    tlab='Count'
+  }
+  #}}}
   #Install/Load the required packages {{{
   if (!plot & (axes | colBar)) { 
     axes<-colBar<-FALSE
