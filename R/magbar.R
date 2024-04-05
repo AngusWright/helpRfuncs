@@ -103,7 +103,7 @@ magbar = function(position='topright', range=c(0,1), orient='v', log=FALSE, col=
   col = col[round(colremap, digits = 0)]
   
   if (orient == 'v') {
-    color.legend(
+    plotrix::color.legend(
       xl,
       yb,
       xr,
@@ -116,7 +116,7 @@ magbar = function(position='topright', range=c(0,1), orient='v', log=FALSE, col=
     )
   }
   if (orient == 'h') {
-    color.legend(
+    plotrix::color.legend(
       xl,
       yb,
       xr,
