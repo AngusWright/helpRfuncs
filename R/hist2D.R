@@ -17,6 +17,7 @@ hist2D<-function(xf,yf,w,z,zfun=median,x.bin,y.bin,nbins=c(25,25),dx=NULL,dy=NUL
   } else { 
     tlab='Count'
   }
+  print(tlab)
   #}}}
   #Install/Load the required packages {{{
   if (!plot & (axes | colBar)) { 
