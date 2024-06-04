@@ -230,7 +230,7 @@ hist2D<-function(xf,yf,w,z,zfun=median,x.bin,y.bin,nbins=c(25,25),dx=NULL,dy=NUL
   }
   #}}}
   #Return {{{
-  return=list(bincen=list(x=bins$x,y=bins$y),zlim=zlim,map=freq2D)
+  return=list(bincen=list(x=bins$x,y=bins$y),breaks=list(x=x.bin,y=y.bin),zlim=zlim,map=freq2D)
   #}}}
 
 }
