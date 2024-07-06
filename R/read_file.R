@@ -200,19 +200,32 @@ read.file<-function(file,extname="OBJECTS",cols,type,...) {
 #/*fend*/}}}
 
 #All-in-one function for reading input files /*fold*/{{{ 
-read.chain<-function(file,skip=200,...) { 
+read.chain<-function(file,skip=1,strip_labels=TRUE,...) { 
   #Check for file 
   if (!file.exists(file)) { 
     stop("File ",file," does not exist!\n")
   }
   #Read the header line 
   header<-data.table::fread(file=file,skip=0,nrows=1,header=FALSE)
-  cat<-data.table::fread(file=file,skip=skip,...)
+  if (any(dim(header)==0)) return(header)
+  cat<-data.table::fread(file=file,skip=skip,nrow=1,header=FALSE)
+  while (grepl("#",cat[[1]][1])) { 
+    skip=skip+1
+    cat<-data.table::fread(file=file,skip=skip,nrow=1,header=FALSE)
+    if (any(dim(cat)<1)) cat<-data.frame(dummy="#")
+  }
+  cat<-data.table::fread(file=file,skip=skip-1,header=FALSE,...)
   #Check for bad header read 
   if (header[1]=='#') { 
     header<-header[-1]
   } 
   header<-helpRfuncs::vecsplit(header,by='#',n=-1)
+  if (strip_labels) { 
+    header<-gsub("cosmological_parameters--","",header,ignore.case=TRUE)
+    header<-gsub("nofz_shifts--","nz_",header,ignore.case=TRUE)
+    header<-gsub("halo_model_parameters--","hm_",header,ignore.case=TRUE)
+    header<-gsub("intrinsic_alignment_parameters--","ia_",header,ignore.case=TRUE)
+  }
   colnames(cat)<-header
   return=cat
 }

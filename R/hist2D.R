@@ -5,9 +5,20 @@
 
 hist2D<-function(xf,yf,w,z,zfun=median,x.bin,y.bin,nbins=c(25,25),dx=NULL,dy=NULL,zlog=FALSE,xlim=NULL,ylim=NULL,
                  palette=grey.colors,ncol=256,colBar=TRUE,flip=FALSE,colmin=0,colmax=1,inset=0.05,
-                 zlim=NULL,barloc='topleft',orient='v',barscale=c(0.2,1/20),axes=T,useRaster=TRUE,
-                 titleshift=1.0,title.cex=1,label.cex=1,add=FALSE,alpha=1,asp=1,plot=TRUE,badval=0,...) {
+                 zlim=NULL,barloc='left',orient='v',barscale=c(0.5,1/20),axes=T,useRaster=TRUE,
+                 titleshift=1.5,title.cex=1,labels=c(T,T,F,F),side=1:4,label.cex=1,add=FALSE,alpha=1,asp=1,plot=TRUE,badval=0,
+                 ...) {
  
+  #> Define the title tables before they are evaluated {{{
+  if (!missing(z)) { 
+    tlab=paste0(as.character(substitute(zfun)),"(",as.character(substitute(z)),")")[1]
+  } else if (!missing(w)) { 
+    tlab=paste0('Sum(',as.character(substitute(w)),')')[1]
+  } else { 
+    tlab='Count'
+  }
+  print(tlab)
+  #}}}
   #Install/Load the required packages {{{
   if (!plot & (axes | colBar)) { 
     axes<-colBar<-FALSE
@@ -116,10 +127,10 @@ hist2D<-function(xf,yf,w,z,zfun=median,x.bin,y.bin,nbins=c(25,25),dx=NULL,dy=NUL
   } 
   #}}}
 
-  if (length(inset)>1) { 
-    warning("magicaxis::magbar only supports a single value for inset. Using the first one provided")
-    inset<-inset[1]
-  }
+  #if (length(inset)>1) { 
+  #  warning("magicaxis::magbar only supports a single value for inset. Using the first one provided")
+  #  inset<-inset[1]
+  #}
 
   if (!missing(z)) { 
     tmp<-data.frame(x=x,y=y,z=z)
@@ -197,7 +208,7 @@ hist2D<-function(xf,yf,w,z,zfun=median,x.bin,y.bin,nbins=c(25,25),dx=NULL,dy=NUL
   }
   #}}}
   #Do the axes, if required {{{
-  if(axes) { magaxis(...) }
+  if(axes) { magaxis(side=side,labels=labels,...) }
   #}}}
   #Plot the colour bar, if required {{{
   if (colBar) {
@@ -212,14 +223,14 @@ hist2D<-function(xf,yf,w,z,zfun=median,x.bin,y.bin,nbins=c(25,25),dx=NULL,dy=NUL
     }
     #}}}
     if (zlog) {
-      suppressWarnings(magbar(barloc,title="log(Count)",range=zlim,col=col,labN=3,scale=barscale,orient=orient,titleshift=titleshift,title.cex=title.cex,cex=label.cex,inset=inset))
+      suppressWarnings(helpRfuncs::magbar(barloc,title=paste0("log(",tlab,")"),range=zlim,col=col,labN=3,scale=barscale,orient=orient,titleshift=titleshift,title.cex=title.cex,cex=label.cex,inset=inset))
     } else {
-      suppressWarnings(magbar(barloc,title="Count",range=zlim,col=col,labN=3,scale=barscale,orient=orient,titleshift=titleshift,title.cex=title.cex,cex=label.cex,inset=inset))
+      suppressWarnings(helpRfuncs::magbar(barloc,title=tlab,range=zlim,col=col,labN=3,scale=barscale,orient=orient,titleshift=titleshift,title.cex=title.cex,cex=label.cex,inset=inset))
     }
   }
   #}}}
   #Return {{{
-  return=list(bincen=list(x=bins$x,y=bins$y),zlim=zlim,map=freq2D)
+  return=list(bincen=list(x=bins$x,y=bins$y),breaks=list(x=x.bin,y=y.bin),zlim=zlim,map=freq2D)
   #}}}
 
 }
