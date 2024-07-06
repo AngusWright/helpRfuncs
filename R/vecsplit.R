@@ -12,6 +12,22 @@ vecsplit<-function(X,by,n,recollapse=!missing(n),fixed=TRUE) {
       return=unlist(lapply(X,function(Y) strsplit(Y,by,fixed=fixed)[[1]]))
     } 
     #}}}
+  } else if(is.function(n)) { 
+    #N is a function to evaluate {{{ 
+    if (recollapse) { 
+      return=unlist(lapply(X,function(Y) { 
+                             vals<-strsplit(Y,by,fixed=fixed)[[1]]
+                             index<-n(vals)
+                             if (!is.numeric(index)) stop("index function does not evaluate to numeric!")
+                             return=paste(vals[index],collapse=by)}))
+    } else { 
+      return=unlist(lapply(X,function(Y) { 
+                             vals<-strsplit(Y,by,fixed=fixed)[[1]]
+                             index<-n(vals)
+                             if (!is.numeric(index)) stop("index function does not evaluate to numeric!")
+                             return=vals[index]}))
+    } 
+    #}}}
   } else if(length(n) > 1) { 
     #If there is more than 1 n value {{{
     #Check for syntax {{{
