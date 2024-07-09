@@ -4,11 +4,11 @@
 
 duplicated<-function(X,from_type='all') {
   if (from_type == 'first') { 
-    return = duplicated(X)
+    return = base::duplicated(X)
   } else if (from_type == 'last') {  
-    return = duplicated(X,fromLast=TRUE)
+    return = base::duplicated(X,fromLast=TRUE)
   } else if (from_type == 'all') { 
-    return = (duplicated(X)|duplicated(X,fromLast=TRUE))
+    return = (base::duplicated(X)|base::duplicated(X,fromLast=TRUE))
   } else { 
     stop("Unknown duplicate selection from_type: must be first/last/all")
   }
