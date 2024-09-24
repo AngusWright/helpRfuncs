@@ -62,6 +62,10 @@ read.file<-function(file,extname="OBJECTS",cols,type,...) {
     } else if (any(!cols%in%basecols)) { 
       stop(paste("Requested columns not found in catalogue:",paste(collapse=' ',cols[which(!cols%in%basecols)])))
     }
+    if (all(c("SeqNr","FIELD_POS") %in% basecols) & any(!c("SeqNr","FIELD_POS") %in% cols)) { 
+      warning("FITS looks like LDAC, but SeqNr & FIELD_POS weren't in the requested column list. Adding them, just in case write-out is needed later...")
+      cols<-c(cols,"SeqNr","FIELD_POS")
+    }
     cat<-Rfits::Rfits_read_table(file=file,ext=exten,cols=cols,...)
     #}}}
   } else if (type%in%c('text',"txt","dat")) { 
