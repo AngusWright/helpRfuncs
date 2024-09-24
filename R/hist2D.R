@@ -7,7 +7,7 @@ hist2D<-function(xf,yf,w,z,zfun=median,x.bin,y.bin,nbins=c(25,25),dx=NULL,dy=NUL
                  palette=grey.colors,ncol=256,colBar=TRUE,flip=FALSE,colmin=0,colmax=1,inset=0.05,
                  zlim=NULL,barloc='left',orient='v',barscale=c(0.5,1/20),axes=T,useRaster=TRUE,
                  titleshift=1.5,title.cex=1,labels=c(T,T,F,F),side=1:4,label.cex=1,add=FALSE,alpha=1,asp=1,plot=TRUE,badval=0,
-                 ...) {
+                 smooth=FALSE,smooth.sd.pix=1,...) {
  
   #> Define the title tables before they are evaluated {{{
   if (!missing(z)) { 
@@ -151,6 +151,19 @@ hist2D<-function(xf,yf,w,z,zfun=median,x.bin,y.bin,nbins=c(25,25),dx=NULL,dy=NUL
   } else { 
     freq2D<-with(tmp,tapply(x,list(x=cut(x, breaks=x.bin, include.lowest=T),
                                    y=cut(y, breaks=y.bin, include.lowest=T)),length))
+  }
+  if (smooth) { 
+    if (!is.na(badval)) { 
+      freq2D[which(is.na(freq2D))]<-badval
+      freq2D<-helpRfuncs::smooth.im(freq2D,filter.sd.pix=smooth.sd.pix)
+    } else { 
+      warning("Bad value cannot be NA during smoothing... setting badval to 0 for smoothing step!") 
+      tmp<-freq2D
+      tmp[which(is.na(tmp))]<-0
+      tmp<-helpRfuncs::smooth.im(tmp,filter.sd.pix=smooth.sd.pix)
+      tmp[which(is.na(freq2D))]<-badval
+      freq2D<-tmp
+    }
   }
   freq2D[which(is.na(freq2D))]<-badval
   #}}}
