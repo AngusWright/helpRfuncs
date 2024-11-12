@@ -1,6 +1,6 @@
 
 #All-in-one function for reading input files /*fold*/{{{ 
-read.file<-function(file,extname="OBJECTS",cols,type,...) { 
+read.file<-function(file,extname="OBJECTS",cols,type,ldacsafe=TRUE,...) { 
   #Check for file 
   if (!file.exists(file)) { 
     stop("File ",file," does not exist!\n")
@@ -62,7 +62,7 @@ read.file<-function(file,extname="OBJECTS",cols,type,...) {
     } else if (any(!cols%in%basecols)) { 
       stop(paste("Requested columns not found in catalogue:",paste(collapse=' ',cols[which(!cols%in%basecols)])))
     }
-    if (all(c("SeqNr","FIELD_POS") %in% basecols) & any(!c("SeqNr","FIELD_POS") %in% cols)) { 
+    if (ldacsafe & all(c("SeqNr","FIELD_POS") %in% basecols) & any(!c("SeqNr","FIELD_POS") %in% cols)) { 
       warning("FITS looks like LDAC, but SeqNr & FIELD_POS weren't in the requested column list. Adding them, just in case write-out is needed later...")
       cols<-c(cols,"SeqNr","FIELD_POS")
     }
