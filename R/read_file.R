@@ -1,6 +1,128 @@
 
 #All-in-one function for reading input files /*fold*/{{{ 
-read.file<-function(file,extname="OBJECTS",cols,type,ldacsafe=TRUE,...) { 
+read.colnames<-function(file,extname="OBJECTS",cols,type,...) { 
+  #Check for file 
+  if (!file.exists(file)) { 
+    stop("File ",file," does not exist!\n")
+  }
+  #Automatically detect file type{{{
+  if (missing(type)) { 
+    if (grepl('\\.fits',file,ignore.case=TRUE)|grepl('\\.cat',file,ignore.case=TRUE)){
+      type='fits'
+    } else if (grepl('\\.txt',file,ignore.case=TRUE)|grepl('\\.dat',file,ignore.case=TRUE)){
+      type='text'
+    } else if (grepl('\\.asc',file,ignore.case=TRUE)){
+      type='ascii'
+    } else if (grepl('\\.csv',file,ignore.case=TRUE)){
+      type='csv'
+    } else if (grepl('\\.Rdata',file,ignore.case=TRUE)){
+      type='rdata'
+    } else if (grepl('\\.rds',file,ignore.case=TRUE)){
+      type='rds'
+    } else if (grepl('\\.feather',file,ignore.case=TRUE)|grepl('\\.arrow',file,ignore.case=TRUE)){
+      type='feather'
+    } else if (grepl('\\.parquet',file,ignore.case=TRUE)){
+      type='parquet'
+    } else { 
+      stop(paste0("Cannot automatically detect type: Unknown extension (not fits/cat/ascii/txt/dat/csv/Rdata/RDS/arrow/feather/parquet) on file:\n",file))
+    }
+  } else { 
+    type=match.arg(tolower(type),c("fits","cat","ascii","text","txt","dat","csv","rdata","rds","arrow","feather","parquet"))
+  }
+  #}}}
+  #Read the desired file type and output it
+  if (type%in%c('fits',"cat")) { 
+    #FITS & LDAC {{{ 
+    hdr<-list(keyvalues=list(NAXIS=0))
+    exten=1
+    if (!"Rfits" %in% rownames(installed.packages())) { 
+      stop("Cannot read FITS file: Rfits is not installed!")
+    }
+    extnames<-Rfits::Rfits_extnames(file)
+    extnames[which(is.na(extnames))]<-""
+    if (!extname %in% extnames) { 
+      if (any(extnames!="")) { 
+        exten=rev(which(extnames!=""))[1]
+        warning("Did not find extension:",extname,".\nAssuming the last named extension (",exten,
+                ", named ",extnames[exten],") is correct...")
+      } else { 
+        warning("Did not find extension:",extname,".\nThere are no named extensions. Assuming that the last one  (",exten,
+                ") is correct...")
+        exten=length(extnames)
+      } 
+    } else if (length(which(extnames==extname))>1) { 
+      warning("The requested extension",extname,"has multiple instances in the file?! Taking the first one...")
+      exten<-which(extnames==extname)[1]
+    } else { 
+      exten<-which(extnames==extname)
+    }
+    cols=Rfits::Rfits_read_colnames(file,ext=exten)
+    #}}}
+  } else if (type%in%c('text',"txt","dat")) { 
+    #Text {{{
+    if ("data.table" %in% rownames(installed.packages())) { 
+      if (!missing(cols)) { 
+        warning("Cannot read column subset from TXT catalogue; reading all columns")
+      }
+      cat<-data.table::fread(file=file,nrows=1,...)
+      cols=colnames(cat)
+    } else { 
+      stop("Cannot read txt file: data.table is not installed!")
+    }
+    #}}}
+  } else if (type=='ascii'){ 
+    #ASCII {{{
+    if ("data.table" %in% rownames(installed.packages())) { 
+      cat<-data.table::fread(file=file,nrows=1,...)
+      cols=colnames(cat)
+    } else { 
+      stop("Cannot read ascii file: data.table is not installed!")
+    }
+    #}}}
+  } else if (type=='csv') { 
+    #CSV {{{
+    if ("data.table" %in% rownames(installed.packages())) { 
+      cat<-data.table::fread(file=file,nrows=1,...)
+      cols=colnames(cat)
+    } else { 
+      stop("Cannot read CSV file: data.table is not installed!")
+    }
+    #}}}
+  } else if (type=='rdata') { 
+    #Rdata {{{
+    stop("Cannot read column names from Rdata catalogue")
+    #}}}
+  } else if (type=='rds') {
+    #RDS {{{
+    stop("Cannot read column names from RDS catalogue")
+    #}}}
+  } else if (type%in%c('feather',"arrow")) { 
+    #Feather {{{
+    if ("arrow" %in% rownames(installed.packages())) { 
+      rf <- arrow::ReadableFile$create(file)
+      fr <- arrow::FeatherReader$create(rf)
+      cols=names(fr)
+    } else { 
+      stop("Cannot read feather file: arrow is not installed!")
+    }
+    #}}}
+  } else if (type=='parquet'){ 
+    #Parquet {{{
+    if ("arrow" %in% rownames(installed.packages())) { 
+      cols=arrow::open_dataset(sources = file)$schema$names
+    } else { 
+      stop("Cannot read parquet file: arrow is not installed!")
+    }
+    #}}}
+  } else { 
+    stop(paste0("Unknown extension (not fits/cat/asc/txt/dat/csv/Rdata/RDS/arrow/feather/parquet) on file:\n",file))
+  }
+  return(cols)
+}
+#/*fend*/}}}
+
+#All-in-one function for reading input files /*fold*/{{{ 
+read.file<-function(file,extname="OBJECTS",cols,type,ldacsafe=TRUE,nrows=Inf,...) { 
   #Check for file 
   if (!file.exists(file)) { 
     stop("File ",file," does not exist!\n")
@@ -66,7 +188,7 @@ read.file<-function(file,extname="OBJECTS",cols,type,ldacsafe=TRUE,...) {
       warning("FITS looks like LDAC, but SeqNr & FIELD_POS weren't in the requested column list. Adding them, just in case write-out is needed later...")
       cols<-c(cols,"SeqNr","FIELD_POS")
     }
-    cat<-Rfits::Rfits_read_table(file=file,ext=exten,cols=cols,...)
+    cat<-Rfits::Rfits_read_table(file=file,ext=exten,cols=cols,nrow=ifelse(!is.finite(nrows),0,nrows),...)
     #}}}
   } else if (type%in%c('text',"txt","dat")) { 
     #Text {{{
@@ -74,7 +196,7 @@ read.file<-function(file,extname="OBJECTS",cols,type,ldacsafe=TRUE,...) {
       if (!missing(cols)) { 
         warning("Cannot read column subset from TXT catalogue; reading all columns")
       }
-      cat<-data.table::fread(file=file,...)
+      cat<-data.table::fread(file=file,nrows=nrows,...)
       if (!missing(cols)) {
         if (any(!cols%in%colnames(cat))) { 
           stop(paste("Requested columns were not found in the read catalogue:",paste(collapse=' ',cols[which(!cols%in%colnames(cat))])))
@@ -90,7 +212,7 @@ read.file<-function(file,extname="OBJECTS",cols,type,ldacsafe=TRUE,...) {
       if (!missing(cols)) { 
         warning("Cannot read column subset from ASCII catalogue; reading all columns")
       }
-      cat<-data.table::fread(file=file,...)
+      cat<-data.table::fread(file=file,nrows=nrows,...)
       if (!missing(cols)) {
         if (any(!cols%in%colnames(cat))) { 
           stop(paste("Requested columns were not found in the read catalogue:",paste(collapse=' ',cols[which(!cols%in%colnames(cat))])))
@@ -106,7 +228,7 @@ read.file<-function(file,extname="OBJECTS",cols,type,ldacsafe=TRUE,...) {
       if (!missing(cols)) { 
         warning("Cannot read column subset from CSV catalogue; reading all columns")
       }
-      cat<-data.table::fread(file=file,...)
+      cat<-data.table::fread(file=file,nrows=nrows,...)
       if (!missing(cols)) {
         if (any(!cols%in%colnames(cat))) { 
           stop(paste("Requested columns were not found in the read catalogue:",paste(collapse=' ',cols[which(!cols%in%colnames(cat))])))
@@ -116,7 +238,7 @@ read.file<-function(file,extname="OBJECTS",cols,type,ldacsafe=TRUE,...) {
       stop("Cannot read CSV file: data.table is not installed!")
     }
     #}}}
-  } else if (type=='Rdata') { 
+  } else if (type=='rdata') { 
     #Rdata {{{
     if (!missing(cols)) { 
       warning("Cannot load column subset from Rdata catalogue; loading all columns")
@@ -167,6 +289,9 @@ read.file<-function(file,extname="OBJECTS",cols,type,ldacsafe=TRUE,...) {
       } else { 
         cat<-arrow::read_parquet(file=file,...)
       }
+      if (nrows<nrow(cat)) {
+        cat<-cat[1:nrows,]
+      }
     } else { 
       stop("Cannot read parquet file: arrow is not installed!")
     }
@@ -175,62 +300,88 @@ read.file<-function(file,extname="OBJECTS",cols,type,ldacsafe=TRUE,...) {
     stop(paste0("Unknown extension (not fits/cat/asc/txt/dat/csv/Rdata/RDS/arrow/feather/parquet) on file:\n",file))
   }
   #Check for bad header read 
-  if (colnames(cat)[1]=='#') { 
-    warning("The file header was read incorrectly due to a leading '#'. Correcting.")
-    #We read the comment charachter as a column name. Shift all names across one 
-    colnames(cat)<-c(colnames(cat)[-1],"#")
-    if (any(colnames(cat)==paste0("V",1:ncol(cat)+1))) { 
-      ind<-which(colnames(cat)==paste0("V",1:ncol(cat)+1))
-      colnames(cat)[ind]<-paste0("V",ind)
+  if (is.data.frame(cat)){ 
+    if (colnames(cat)[1]=='#') { 
+      warning("The file header was read incorrectly due to a leading '#'. Correcting.")
+      #We read the comment charachter as a column name. Shift all names across one 
+      colnames(cat)<-c(colnames(cat)[-1],"#")
+      if (any(colnames(cat)==paste0("V",1:ncol(cat)+1))) { 
+        ind<-which(colnames(cat)==paste0("V",1:ncol(cat)+1))
+        colnames(cat)[ind]<-paste0("V",ind)
+      }
+      if (all(is.na(cat[["#"]]))) { 
+        cat[["#"]]<-NULL
+      } else { 
+        colnames(cat)[ncol(cat)]<-paste0("V",ncol(cat))
+      }
+      if (any(duplicated(colnames(cat)))) { 
+        ind<-which(duplicated(colnames(cat)))
+        warning(paste("catalogue has",length(ind),"duplicated column name(s); these are appended with their column number"))
+        colnames(cat)[ind]<-paste0(colnames(cat)[ind],"_","V",ind)
+      }
+    } 
+    if (any(colnames(cat)==paste0("V",1:ncol(cat))) & !all(colnames(cat)==paste0("V",1:ncol(cat)))) { 
+      #File was read with partial header information
+      warning(paste0("The catalogue has been read with partial header information?!\nThe available column names are: ",
+                     paste(collapse=' ',colnames(cat)[which(colnames(cat)!=paste0("V",1:ncol(cat)))]),"\nIs this file in Robenjamert format?!"))
     }
-    if (all(is.na(cat[["#"]]))) { 
-      cat[["#"]]<-NULL
-    } else { 
-      colnames(cat)[ncol(cat)]<-paste0("V",ncol(cat))
-    }
-    if (any(duplicated(colnames(cat)))) { 
-      ind<-which(duplicated(colnames(cat)))
-      warning(paste("catalogue has",length(ind),"duplicated column name(s); these are appended with their column number"))
-      colnames(cat)[ind]<-paste0(colnames(cat)[ind],"_","V",ind)
-    }
-  } 
-  if (any(colnames(cat)==paste0("V",1:ncol(cat))) & !all(colnames(cat)==paste0("V",1:ncol(cat)))) { 
-    #File was read with partial header information
-    warning(paste0("The catalogue has been read with partial header information?!\nThe available column names are: ",
-                   paste(collapse=' ',colnames(cat)[which(colnames(cat)!=paste0("V",1:ncol(cat)))]),"\nIs this file in Robenjamert format?!"))
   }
   return=cat
 }
 #/*fend*/}}}
 
 #All-in-one function for reading input files /*fold*/{{{ 
-read.chain<-function(file,skip=1,strip_labels=TRUE,...) { 
+read.chain<-function(file,skip=1,strip_labels=TRUE,drop_bad=TRUE,...) { 
   #Check for file 
   if (!file.exists(file)) { 
     stop("File ",file," does not exist!\n")
   }
   #Read the header line 
-  header<-data.table::fread(file=file,skip=0,nrows=1,header=FALSE)
-  if (any(dim(header)==0)) return(header)
-  cat<-data.table::fread(file=file,skip=skip,nrow=1,header=FALSE)
-  while (grepl("#",cat[[1]][1])) { 
-    skip=skip+1
-    cat<-data.table::fread(file=file,skip=skip,nrow=1,header=FALSE)
-    if (any(dim(cat)<1)) cat<-data.frame(dummy="#")
+  if (!grepl(".fits",file,fixed=T)) { 
+    header<-data.table::fread(file=file,skip=0,nrows=1,header=FALSE)
+    if (any(dim(header)==0)) return(header)
+    cat<-data.table::fread(file=file,skip=skip,nrows=1,header=FALSE)
+    while (grepl("#",cat[[1]][1])) { 
+      skip=skip+1
+      cat<-data.table::fread(file=file,skip=skip,nrows=1,header=FALSE)
+      if (any(dim(cat)<1)) cat<-data.frame(dummy="#")
+    }
+    if (skip>1) { 
+      cat<-data.table::fread(file=file,skip=skip-1,header=FALSE,...)
+    } else { 
+      cat<-data.table::fread(file=file,skip=skip,header=FALSE,...)
+    }
+    #Check for bad header read 
+    if (header[1]=='#') { 
+      header<-header[-1]
+    } 
+    header<-helpRfuncs::vecsplit(unlist(header),by='#',n=-1)
+  } else { 
+    cat<-helpRfuncs::read.file(file=file,...)
+    header<-colnames(cat)
   }
-  cat<-data.table::fread(file=file,skip=skip-1,header=FALSE,...)
-  #Check for bad header read 
-  if (header[1]=='#') { 
-    header<-header[-1]
-  } 
-  header<-helpRfuncs::vecsplit(header,by='#',n=-1)
   if (strip_labels) { 
     header<-gsub("cosmological_parameters--","",header,ignore.case=TRUE)
     header<-gsub("nofz_shifts--","nz_",header,ignore.case=TRUE)
     header<-gsub("halo_model_parameters--","hm_",header,ignore.case=TRUE)
     header<-gsub("intrinsic_alignment_parameters--","ia_",header,ignore.case=TRUE)
+    if (any(grepl("*",header,fixed=T))){ 
+      header<-gsub("*","",header,fixed=TRUE)
+    }
   }
   colnames(cat)<-header
+  mfun<-function(X) mean(as.numeric(X),na.rm=T)
+  class<-unlist(lapply(cat,FUN=class))
+  #if (any(class!='numeric')) { 
+  #  warning(paste('typecasting non-numeric columns:',paste(collapse=' ',colnames(cat)[which(class!='numeric')])))
+  #  for (col in colnames(cat)[which(class!='numeric')]) 
+  #    cat[[col]]<-as.numeric(cat[[col]])
+  #}
+  val<-unlist(lapply(cat,FUN=mfun))
+  if (any(class=='numeric' & is.nan(val)) & drop_bad) { 
+    warning(paste('removing fully missing numeric columns:',paste(collapse=' ',colnames(cat)[which(class=='numeric' & is.nan(val))])))
+    cat<-cat[,which(class!='numeric' | !is.nan(val)),with=F]
+  }
   return=cat
 }
 #/*fend*/}}}
