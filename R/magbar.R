@@ -1,5 +1,5 @@
 magbar = function(position='topright', range=c(0,1), orient='v', log=FALSE, col=hcl.colors(21), scale=c(1/4,1/20),
-         inset=1/40, labN=5, title.cex=1, title='', titleshift=0, centrealign='rb', clip='', cex=1, ...){
+         inset=1/40, labN=5, title.cex=1, title='', titleshift=0, centrealign='rb', clip='', cex=1, family=par("family"), ...){
   if (length(inset)==1) { 
     inset=rep(inset,2)
   }
@@ -112,7 +112,8 @@ magbar = function(position='topright', range=c(0,1), orient='v', log=FALSE, col=
       rect.col = col,
       cex = cex,
       align = align,
-      gradient = 'y'
+      gradient = 'y', 
+      family = family
     )
   }
   if (orient == 'h') {
@@ -125,7 +126,8 @@ magbar = function(position='topright', range=c(0,1), orient='v', log=FALSE, col=
       rect.col = col,
       cex = cex,
       align = align,
-      gradient = 'x'
+      gradient = 'x', 
+      family = family
     )
   }
   
@@ -134,10 +136,11 @@ magbar = function(position='topright', range=c(0,1), orient='v', log=FALSE, col=
     text(
       xl - (1 + titleshift) * xdiff / 20,
       (yt + yb) / 2,
-      labels = title,
+      labels = parse(text=title),
       adj = c(0.5, 0.5),
       srt = 90,
-      cex = title.cex
+      cex = title.cex, 
+      family = family
     )
   }
   if (orient == 'v' &
@@ -145,30 +148,33 @@ magbar = function(position='topright', range=c(0,1), orient='v', log=FALSE, col=
     text(
       xr + (1 + titleshift) * xdiff / 20,
       (yt + yb) / 2,
-      labels = title,
+      labels = parse(text=title),
       adj = c(0.5, 0.5),
       srt = -90,
-      cex = title.cex
+      cex = title.cex, 
+      family = family
     )
   }
   if (orient == 'h' &
       align == 'lt') {
     text((xl + xr) / 2,
          yt + (1 + titleshift) * ydiff / 20,
-         labels = title,
+         labels = parse(text=title),
          adj = c(0.5, 0.5),
          srt = 0,
-         cex = title.cex
+         cex = title.cex, 
+         family = family
     )
   }
   if (orient == 'h' &
       align == 'rb') {
     text((xl + xr) / 2,
          yb - (1 + titleshift) * ydiff / 20,
-         labels = title,
+         labels = parse(text=title),
          adj = c(0.5, 0.5),
          srt = 0,
-         cex = title.cex
+         cex = title.cex, 
+         family = family
     )
   }
   

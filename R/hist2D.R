@@ -6,16 +6,21 @@
 hist2D<-function(xf,yf,w,z,zfun=median,x.bin,y.bin,nbins=c(25,25),dx=NULL,dy=NULL,zlog=FALSE,xlim=NULL,ylim=NULL,
                  palette=grey.colors,ncol=256,colBar=TRUE,flip=FALSE,colmin=0,colmax=1,inset=0.05,
                  zlim=NULL,barloc='left',orient='v',barscale=c(0.5,1/20),axes=T,useRaster=TRUE,
-                 titleshift=1.5,title.cex=1,labels=c(T,T,F,F),side=1:4,label.cex=1,add=FALSE,alpha=1,asp=1,plot=TRUE,badval=0,
-                 smooth=FALSE,smooth.sd.pix=1,...) {
+                 title,titleshift=1.5,title.cex=1,labels=c(T,T,F,F),side=1:4,label.cex=1,add=FALSE,alpha=1,asp=1,plot=TRUE,badval=0,
+                 smooth=FALSE,smooth.sd.pix=1,family=par("family"),...) {
  
+  opar=par(family=family)
   #> Define the title tables before they are evaluated {{{
-  if (!missing(z)) { 
-    tlab=paste0(as.character(substitute(zfun)),"(",as.character(substitute(z)),")")[1]
-  } else if (!missing(w)) { 
-    tlab=paste0('Sum(',as.character(substitute(w)),')')[1]
-  } else { 
-    tlab='Count'
+  if (missing(title)) { 
+    if (!missing(z)) { 
+      tlab=paste0(as.character(substitute(zfun)),"(",as.character(substitute(z)),")")[1]
+    } else if (!missing(w)) { 
+      tlab=paste0('Sum(',as.character(substitute(w)),')')[1]
+    } else { 
+      tlab='Count'
+    }
+  } else{ 
+    tlab=title
   }
   #print(tlab)
   #}}}
@@ -221,7 +226,7 @@ hist2D<-function(xf,yf,w,z,zfun=median,x.bin,y.bin,nbins=c(25,25),dx=NULL,dy=NUL
   }
   #}}}
   #Do the axes, if required {{{
-  if(axes) { magaxis(side=side,labels=labels,...) }
+  if(axes) { magaxis(side=side,labels=labels,family=family,...) }
   #}}}
   #Plot the colour bar, if required {{{
   if (colBar) {
@@ -236,16 +241,109 @@ hist2D<-function(xf,yf,w,z,zfun=median,x.bin,y.bin,nbins=c(25,25),dx=NULL,dy=NUL
     }
     #}}}
     if (zlog) {
-      suppressWarnings(helpRfuncs::magbar(barloc,title=paste0("log(",tlab,")"),range=zlim,col=col,labN=3,scale=barscale,orient=orient,titleshift=titleshift,title.cex=title.cex,cex=label.cex,inset=inset))
+      suppressWarnings(helpRfuncs::magbar(barloc,title=paste0("log(",tlab,")"),range=zlim,col=col,labN=3,scale=barscale,orient=orient,titleshift=titleshift,title.cex=title.cex,cex=label.cex,inset=inset,family=family))
     } else {
-      suppressWarnings(helpRfuncs::magbar(barloc,title=tlab,range=zlim,col=col,labN=3,scale=barscale,orient=orient,titleshift=titleshift,title.cex=title.cex,cex=label.cex,inset=inset))
+      suppressWarnings(helpRfuncs::magbar(barloc,title=tlab,range=zlim,col=col,labN=3,scale=barscale,orient=orient,titleshift=titleshift,title.cex=title.cex,cex=label.cex,inset=inset,family=family))
     }
   }
   #}}}
+  par(opar)
   #Return {{{
   return=list(bincen=list(x=bins$x,y=bins$y),breaks=list(x=x.bin,y=y.bin),zlim=zlim,map=freq2D)
   #}}}
 
 }
 
+plot_hist2D<-function(hist_struct,zlog=FALSE,xlim=NULL,ylim=NULL,
+                 palette=grey.colors,ncol=256,colBar=TRUE,flip=FALSE,colmin=0,colmax=1,inset=0.05,
+                 zlim=NULL,barloc='left',orient='v',barscale=c(0.5,1/20),axes=T,useRaster=TRUE,
+                 title='',titleshift=1.5,title.cex=1,labels=c(T,T,F,F),side=1:4,label.cex=1,add=FALSE,alpha=1,asp=1,plot=TRUE,
+                 family='serif',...) {
+  freq2D<-hist_struct$map
+  bins<-hist_struct$bincen
+  x.bin<-hist_struct$breaks$x
+  y.bin<-hist_struct$breaks$x
+  opar=par(family=family)
+
+  #Setup the colour palette {{{
+  col<-suppressMessages(try(palette(ncol,start=colmin,end=colmax),silent=TRUE))
+  if (class(col)=='try-error') {
+    col<-palette(ncol)
+  }
+  if (flip) { col<-rev(col) }
+  if (alpha!=1) { 
+    col<-unlist(lapply(col,col2alpha,alpha=alpha))
+  }
+  #}}}
+  #Plot the array using either logarithmic scaling or linear scalling {{{
+  if (zlog) {
+    # Log
+    p.freq2D<-freq2D
+    if (is.null(zlim)) { 
+      zlim=range(log10(freq2D)[which(is.finite(log10(freq2D)))]) 
+    } else { 
+      p.freq2D[which(log10(p.freq2D)>max(zlim))]<-10^max(zlim) 
+      p.freq2D[which(log10(p.freq2D)<min(zlim))]<-10^min(zlim) 
+    }
+    if (plot) { 
+      if (useRaster) { 
+        dx<-diff(x.bin)
+        dy<-diff(y.bin)
+        if (any(dx!=dx[1])|any(dy!=dy[1])) { 
+          warning("Cannot use Raster with non-uniform binning") 
+          useRaster<-FALSE
+        } 
+      }
+      suppressWarnings(image(bins$x,bins$y, log10(p.freq2D),xlim=xlim,ylim=ylim,col=col,axes=F,xlab="",ylab="",useRaster=useRaster,zlim=zlim,add=add,asp=asp))
+    }
+  } else {
+    # Normal
+    p.freq2D<-freq2D
+    if (is.null(zlim)) { 
+      zlim=range((freq2D)[which(is.finite((freq2D)))]) 
+    } else { 
+      p.freq2D[which((p.freq2D)>max(zlim))]<-max(zlim) 
+      p.freq2D[which((p.freq2D)<min(zlim))]<-min(zlim) 
+    }
+    if (plot) { 
+      if (useRaster) { 
+        dx<-diff(x.bin)
+        dy<-diff(y.bin)
+        if (any(dx!=dx[1])|any(dy!=dy[1])) { 
+          warning("Cannot use Raster with non-uniform binning") 
+          useRaster<-FALSE
+        } 
+      }
+      suppressWarnings(image(bins$x,bins$y, p.freq2D,xlim=xlim,ylim=ylim,col=col,axes=F,xlab="",ylab="",useRaster=useRaster,zlim=zlim,add=add,asp=asp))
+    }
+  }
+  #}}}
+  #Do the axes, if required {{{
+  if(axes) { magaxis(side=side,labels=labels,family=family,...) }
+  #}}}
+  #Plot the colour bar, if required {{{
+  if (colBar) {
+    #Remake the colour palette with low-N (better for the bar) {{{
+    col<-suppressMessages(try(palette(100,start=colmin,end=colmax),silent=TRUE))
+    if (class(col)=='try-error') {
+      col<-palette(ncol)
+    }
+    if (flip) { col<-rev(col) }
+    if (alpha!=1) { 
+      col<-unlist(lapply(col,col2alpha,alpha=alpha))
+    }
+    #}}}
+    if (zlog) {
+      suppressWarnings(helpRfuncs::magbar(barloc,title=paste0("log(",title,")"),range=zlim,col=col,labN=3,scale=barscale,orient=orient,titleshift=titleshift,title.cex=title.cex,cex=label.cex,inset=inset,family=family))
+    } else {
+      suppressWarnings(helpRfuncs::magbar(barloc,title=title,range=zlim,col=col,labN=3,scale=barscale,orient=orient,titleshift=titleshift,title.cex=title.cex,cex=label.cex,inset=inset,family=family))
+    }
+  }
+  #}}}
+  par(opar)
+  #Return {{{
+  return=list(bincen=list(x=bins$x,y=bins$y),breaks=list(x=x.bin,y=y.bin),zlim=zlim,map=freq2D)
+  #}}}
+
+}
 

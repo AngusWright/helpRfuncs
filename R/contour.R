@@ -8,7 +8,8 @@ contour<-function (x, y, z, h, doim = TRUE, docon = TRUE, dobar = TRUE, ngrid = 
         start = 0, end = 2/3))), conlevels = c(0.5, pnorm(1) - 
         pnorm(-1), 0.95), barposition = "topright", barorient = "v", 
     bartitle = "Contained %", bartitleshift = 0, xlim = NULL, 
-    ylim = NULL, weights = NULL, fill=FALSE, fill.col, col='black', returnLevels=TRUE, ...) 
+    ylim = NULL, weights = NULL, fill=FALSE, fill.col, col='black', returnLevels=TRUE, 
+    side=1:4,labels=c(T,T,F,F),family=par("family"), ...) 
 {
   #Load relevant packages {{{
   library(magicaxis)
@@ -139,7 +140,7 @@ contour<-function (x, y, z, h, doim = TRUE, docon = TRUE, dobar = TRUE, ngrid = 
   #If requested, plot the image {{{
   if (doim) {
     magimage(tempcon, col = imcol, axes = FALSE, add = TRUE, 
-             xlim = xlim, ylim = ylim, magmap = FALSE)
+             xlim = xlim, ylim = ylim, magmap = FALSE,family=family)
   }
   #}}}
   #If requested, plot the contours {{{
@@ -169,13 +170,13 @@ contour<-function (x, y, z, h, doim = TRUE, docon = TRUE, dobar = TRUE, ngrid = 
   #}}}
   #If not "add"-ing, draw the axes {{{
   if (add == FALSE) {
-    magaxis(xlab = xlab, ylab = ylab)
+    magaxis(xlab = xlab, ylab = ylab, side=side, label=labels, family=family)
   }
   #}}}
   #If requested, draw the colourbar {{{
   if (dobar) {
     helpRfuncs::magbar(position = barposition, range = c(0, 100), orient = barorient, 
-           col = rev(imcol), title = bartitle, titleshift = bartitleshift)
+           col = rev(imcol), title = bartitle, titleshift = bartitleshift,family=family)
   }
   #}}}
   #If requested, return the contour levels {{{

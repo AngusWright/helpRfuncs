@@ -99,12 +99,24 @@ write.file<-function(file,cat,quote=FALSE,row.names=FALSE,col.names=TRUE,verbose
     #data.table::fwrite(file=file,cat,quote=quote,row.names=row.names,...)
     data.table::fwrite(file=file,cat,...)
     #}}}
+  } else if (grepl('\\.rds',file,ignore.case=TRUE)){
+    #Save as Rdata {{{
+    saveRDS(file=file,cat,...)
+    #}}}
   } else if (grepl('\\.Rdata',file,ignore.case=TRUE)){
     #Save as Rdata {{{
     save(file=file,cat,...)
     #}}}
+  } else if (grepl('\\.parquet',file,ignore.case=TRUE)){ 
+    #Parquet {{{
+    if ("arrow" %in% rownames(installed.packages())) { 
+        arrow::write_parquet(sink=file,x=cat,...)
+    } else { 
+      stop("Cannot write parquet file: arrow is not installed!")
+    }
+    #}}}
   } else { 
-    stop(paste0("Unknown extension (not fits/cat/asc/csv/Rdata):",file))
+    stop(paste0("Unknown extension (not fits/cat/asc/csv/rds/Rdata/parquet):",file))
   }
   return=NULL
 }
@@ -124,7 +136,7 @@ get_types<-function(table) {
   tforms[check.integer64] = "1K"
   tforms[check.double] = "1D"
   if (data.table::is.data.table(table)) { 
-    res=try(tforms[check.char] <- paste(sapply(table[, ..check.char,drop = FALSE], function(x) max(nchar(x)) + 1),"A", sep = ""))
+    res=try(tforms[check.char] <- paste(sapply(table[, ..check.char,drop = FALSE], function(x) max(nchar(x)) + 1),"A", sep = ""),silent=T)
     if (class(res)=='try-error') { 
       tforms[check.char] = paste(sapply(table[, check.char,drop = FALSE], function(x) max(nchar(x)) + 1),"A", sep = "")
     }

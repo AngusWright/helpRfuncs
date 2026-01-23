@@ -15,5 +15,9 @@ text.coord<-function (loc, inset = 0) {
     top <- switch(auto, bottomright = , bottom = , bottomleft = usr[3L] + 
                   insety, topleft = , top = , topright = usr[4L] - insety, 
                   left = , right = , center = (usr[3L] + usr[4L])/2)
+    if (par('xlog')) 
+      left<-10^left
+    if (par('ylog'))
+      top=10^top
     return=cbind(x=left,y=top)
 }
