@@ -3,7 +3,7 @@
 # File Name : tension_metrics.R
 # Created By : awright
 # Creation Date : 15-11-2024
-# Last Modified : Mon Mar  3 07:14:12 2025
+# Last Modified : Tue Jul 28 11:41:38 2026
 #
 #=========================================
 
@@ -31,8 +31,8 @@ tension_metrics<-function(sample1,sample2,weight1,weight2,bw,kern='gauss',from,t
   mean1<-weighted.mean(sample1[ind1],w=weight1[ind1]/sum(weight1[ind1]))
   mean2<-weighted.mean(sample2[ind2],w=weight2[ind2]/sum(weight2[ind2]))
   #Compute sample sdevs
-  sdev1<-weighted.sd(sample1[ind1],w=weight1[ind1]/sum(weight1[ind1]))
-  sdev2<-weighted.sd(sample2[ind2],w=weight2[ind2]/sum(weight2[ind2]))
+  sdev1<-weighted.sd(sample1[ind1],wt=weight1[ind1]/sum(weight1[ind1]))
+  sdev2<-weighted.sd(sample2[ind2],wt=weight2[ind2]/sum(weight2[ind2]))
   #Compute sample PDFs
   dens1<-density(sample1[ind1],weight=weight1[ind1]/sum(weight1[ind1]),kern=kern,from=from,to=to,n=n,bw=bw)
   df1<-approxfun(dens1$x,dens1$y,rule=1)
