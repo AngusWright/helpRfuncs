@@ -57,11 +57,9 @@ colWeightedCounts<-function (x, w, rows = NULL, cols = NULL, value = TRUE, na.rm
 }
 colWeightedTabulates<-function (x, w, rows = NULL, cols = NULL, values = NULL, cores=1, na.rm, ...) 
 {
-    library(foreach)
     if (cores>1) { 
       #cat(paste("Running in parallel:",cores,"\n"))
-      library(doParallel)
-      registerDoParallel(cores=cores)
+      doParallel::registerDoParallel(cores=cores)
     }
 
     if (is.integer(x)) {
@@ -113,11 +111,11 @@ colWeightedTabulates<-function (x, w, rows = NULL, cols = NULL, values = NULL, c
           na.rm <- matrixStats::anyMissing(x)
         }
         if (!missing(w)) { 
-          counts<-foreach(value=values,.combine='cbind',.export=c('x','w'))%dopar% {
+          counts<-foreach::foreach(value=values,.combine='cbind',.export=c('x','w'))%dopar% {
               return=colWeightedCounts(x, w, value = value, na.rm = na.rm)
           }
         } else { 
-          counts<-foreach(value=values,.combine='cbind',.export=c('x'))%dopar% {
+          counts<-foreach::foreach(value=values,.combine='cbind',.export=c('x'))%dopar% {
               return=colWeightedCounts(x, value = value, na.rm = na.rm)
           }
         }

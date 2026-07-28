@@ -10,20 +10,18 @@
 
 #Compute Prior Volume weights function /*fold*/ {{{
 maglim_weight<-function(zspec,mag.lim=23.5,filter='r',ref=737) { 
-  #z limits 
-  z.limits<-seq(0,max(zspec),by=0.1)
   #Get the analytic Nz
-  nz_theory<-analytic_nz(z.limits,mag.lim,filter,ref)
+  nz_model<-analytic_nz(filter=filter,maglim=mag.lim)
   #Convert to a PDF 
-  nz_theory$N<-nz_theory$N/sum(nz_theory$N)
-  nz_theory<-approxfun(nz_theory$zmid,nz_theory$N)
+  normalisation<-integrate(nz_model,lower=0,upper=max(zspec))$value
+  nz_theory<-function(z) nz_model(z)/normalisation
   #Get the observed Nz 
-  nz_obs<-density(zspec,bw=0.1/sqrt(12),kern='rect',from=0,to=max(zspec))
-  nz_obs<-approxfun(x=nz_obs$mids,y=nz_obs$density)
+  nz_obs<-density(zspec,bw=0.1/sqrt(12),kernel='rectangular',from=0,to=max(zspec))
+  nz_obs<-approxfun(x=nz_obs$x,y=nz_obs$y,rule=2)
   #Get the weights 
   maglim_weight<-nz_theory(zspec)/nz_obs(zspec)
   #Return the weights 
-  return=maglim_weight
+  maglim_weight
 }
 
 analytic_nz_schec<-function(z.limits,mag.lim=23.5,filter='r',ref=737,area=180) { 
