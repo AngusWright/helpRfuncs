@@ -18,13 +18,11 @@ smooth.im<-function(im,filter.sd.pix,normalise=TRUE) {
 
 smooth.im.par<-function(im,filter.sd.pix,normalise=FALSE,n=c(1,1)) { 
 
-  require(doParallel)
-
   if (length(filter.sd.pix)==1) { 
     filter.sd.pix<-rep(filter.sd.pix,2)
   }
 
-  registerDoParallel(cores=prod(n))
+  doParallel::registerDoParallel(cores=prod(n))
   #split the image into n.cores*2-ish chunks with overlap
   dim<-dim(im)
   xstep<-round(seq(1,dim[1],length=n[1]+1))
@@ -50,8 +48,8 @@ smooth.im.par<-function(im,filter.sd.pix,normalise=FALSE,n=c(1,1)) {
   ymin<-ymin-min.buffer.y
   ymax<-ymax+max.buffer.y
 
-  ims<-foreach(i=1:n[1])%:% 
-    foreach(j=1:n[2]) %dopar% { 
+  ims<-foreach::foreach(i=1:n[1])%:%
+    foreach::foreach(j=1:n[2]) %dopar% {
       tmpim<-im[xmin[i]:xmax[i],ymin[j]:ymax[j]]
       tmpim[1:(8*filter.sd.pix),]<-0
       tmpim[,1:(8*filter.sd.pix)]<-0
@@ -71,4 +69,3 @@ smooth.im.par<-function(im,filter.sd.pix,normalise=FALSE,n=c(1,1)) {
   }
   return=smth.im
 }
-

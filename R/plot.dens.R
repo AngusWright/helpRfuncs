@@ -5,8 +5,6 @@ plot.dens<-function(dens,side=1:4,labels=c(T,T,F,T),
   #
   #A better default density plot 
   #
-  require(magicaxis)
-
   #List of arguments to helpRfuncs::showbw
   bw.dotslist<-c("loc","scale","inset","logbw","as.bw")
 
@@ -69,4 +67,3 @@ plot.dens<-function(dens,side=1:4,labels=c(T,T,F,T),
     do.call(helpRfuncs::showbw,args=c(list(dens=dens,col=bw.col),dots.bw))
   }
 }
-

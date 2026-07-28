@@ -2,8 +2,6 @@
                        labels = F, ramean=0, ramult=1,main='',mainloc='bottom',main.inset=0.1,trace=FALSE,buff.percent=0.05,titleshift=0.15,
                        ralab='RA (deg)',zlab=expression(italic(z)),orient='v'){
   
-  require(celestial)
-
   if (length(buff.percent)==1) { 
     buff.percent.ra<-buff.percent.z<-buff.percent
   } else { 

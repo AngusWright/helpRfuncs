@@ -1,5 +1,5 @@
 magbar = function(position='topright', range=c(0,1), orient='v', log=FALSE, col=hcl.colors(21), scale=c(1/4,1/20),
-         inset=1/40, labN=5, title.cex=1, title='', titleshift=0, centrealign='rb', clip='', cex=1, family=par("family"), ...){
+         inset=1/40, labN=5, title.cex=1, title='', titleshift=0, centrealign='rb', clip='', cex=1, family=par("family"), zval, ...){
   if (length(inset)==1) { 
     inset=rep(inset,2)
   }
@@ -130,6 +130,24 @@ magbar = function(position='topright', range=c(0,1), orient='v', log=FALSE, col=
       family = family
     )
   }
+  
+  #counts<-density(zval,bw=abs(diff(range))/100/sqrt(12),kern='rect',n=1e3, from=range[1],to=range[2],na.rm=T)
+  #plt<-par(plt=c(0,1,0,1))
+  #counts$x<-(counts$x-min(counts$x))
+  #counts$x<-counts$x/max(counts$x)
+  #lines(xl + counts$y/max(counts$y)*scale[2] -scale[2] - 1, (counts$x*max(yb-min(yb))+min(yb)),type='l',col='black')
+  #cex <- list(...)$cex
+  #text(range(xl)+c(1,-1)*scale[1]/10,
+  #     max(yt) + 3*scale[2]/10,
+  #     c(0,1),
+  #     xpd = TRUE, cex=cex)
+  #text(sum((range(xl)+c(1,-1)*scale[1]/10))/2,
+  #     max(yt) + 6*scale[2]/10,
+  #     c("P"),
+  #     xpd = TRUE, cex=cex)
+  #par(plt=plt)
+
+
   
   if (orient == 'v' &
       align == 'lt') {

@@ -11,10 +11,6 @@ contour<-function (x, y, z, h, doim = TRUE, docon = TRUE, dobar = TRUE, ngrid = 
     ylim = NULL, weights = NULL, fill=FALSE, fill.col, col='black', returnLevels=TRUE, 
     side=1:4,labels=c(T,T,F,F),family=par("family"), ...) 
 {
-  #Load relevant packages {{{
-  library(magicaxis)
-  library(sm)
-  #}}}
   #Check for missing xy data and correct syntax {{{
   if (missing(y)) {
     #If y is missing, check if x in a Nx2 vector {{{
@@ -52,7 +48,7 @@ contour<-function (x, y, z, h, doim = TRUE, docon = TRUE, dobar = TRUE, ngrid = 
   }
   #}}}
   if (any(!is.finite(h))) { 
-    htmp <- h.select(x = cbind(x,y), y = NA, weights = weights,nbins = 0)
+    htmp <- sm::h.select(x = cbind(x,y), y = NA, weights = weights,nbins = 0)
   } else { 
     htmp <- h 
   }
@@ -88,11 +84,11 @@ contour<-function (x, y, z, h, doim = TRUE, docon = TRUE, dobar = TRUE, ngrid = 
     #If no z-data provided, construct the (weighted-)count image {{{
     #If non-finite smoothing kernel sizes provided, define them new {{{
     if (any(!is.finite(h))) { 
-      h <- h.select(x = cbind(x,y), y = NA, weights = weights,nbins = 0)
+      h <- sm::h.select(x = cbind(x,y), y = NA, weights = weights,nbins = 0)
     }
     #}}}
     #Construct the contour map {{{
-    tempcon = sm.density(cbind(x, y), h = h, weights = weights, 
+    tempcon = sm::sm.density(cbind(x, y), h = h, weights = weights,
                          display = "none", ngrid = ngrid, xlim = xlim + c(-diff(xlim), 
                                                                           diff(xlim)), ylim = ylim + c(-diff(ylim), diff(ylim)), 
                          verbose = FALSE,...)

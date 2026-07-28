@@ -3,16 +3,33 @@
 # File Name :
 # Created By : awright
 # Creation Date : 12-07-2024
-# Last Modified : Fri 12 Jul 2024 09:19:14 AM UTC
+# Last Modified : Wed Jun  3 07:34:14 2026
 #
 #=========================================
 
-aitoff_base<-function(...,col='black',pointsFirst=FALSE,add=FALSE) { 
+aitoff_base<-function(lon,lat,...,col='black',pointsFirst=FALSE,add=FALSE,type='p') { 
   if (add==TRUE) warning("add should not be passed to aitoff_base, and will be ignored") 
   if (pointsFirst) { 
-    magicaxis::magproj(...,col=col)
+    if (type %in% c("b","pl")) { 
+      if (length(dim(lon))!=2) stop("incorrect number of dimensions in lon")
+      if (length(dim(lat))!=2) stop("incorrect number of dimensions in lat")
+      pb<-txtProgressBar(style=3,min=1,max=nrow(lon))
+      for (i in 1:nrow(lon)) { 
+        magicaxis::magproj(lon[i,],lat[i,],...,col=col[i],type=type,add=(i!=1))
+        setTxtProgressBar(pb,i)
+      }
+      close(pb)
+    } else { 
+      magicaxis::magproj(lon,lat,...,col=col,type=type)
+    }
   } else { 
-    magicaxis::magproj(...,col=NA)
+    if (type %in% c("b","pl")) { 
+      if (length(dim(lon))!=2) stop("incorrect number of dimensions in lon")
+      if (length(dim(lat))!=2) stop("incorrect number of dimensions in lat")
+      magicaxis::magproj(lon[1,],lat[1,],...,col=NA,type=type)
+    } else { 
+      magicaxis::magproj(lon,lat,...,col=NA,type=type)
+    }
   }
   magicaxis::magecliptic(width=10,col=hsv(1/12,alpha=0.3),border=NA)
   magicaxis::magecliptic(width=0,col='orange')
@@ -25,6 +42,17 @@ aitoff_base<-function(...,col='black',pointsFirst=FALSE,add=FALSE) {
   legend('bottomleft', legend=c('Sun [19/04]', 'MW Centre'), col=c('orange2','darkgrey'), pch=16,
          bty='n')
   if (!pointsFirst) { 
-    magicaxis::magproj(...,col=col,add=TRUE)
+    if (type %in% c("b","pl")) { 
+      if (length(dim(lon))!=2) stop("incorrect number of dimensions in lon")
+      if (length(dim(lat))!=2) stop("incorrect number of dimensions in lat")
+      pb<-txtProgressBar(style=3,min=1,max=nrow(lon))
+      for (i in 1:nrow(lon)) { 
+        magicaxis::magproj(lon[i,],lat[i,],...,col=col[i],type=type,add=TRUE)
+        setTxtProgressBar(pb,i)
+      }
+      close(pb)
+    } else { 
+      magicaxis::magproj(lon,lat,...,col=col,type=type,add=TRUE)
+    }
   }
 }

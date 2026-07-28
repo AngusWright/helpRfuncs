@@ -1,11 +1,32 @@
 Package: helpRfuncs
 Type: Package
-Title: Helpful functions for R 
-Version: 0.0.1
-Date: 2018-10-22
-Author: Angus H. Wright
-Maintainer: Angus H. Wright <awright@astro.uni-bonn.de>
-Description: Dumping ground for helpful functions that I have written in R 
-Depends: 
+Title: Helpful Functions for R
+Version: 0.1.0
+Authors@R:
+    person(given = c("Angus", "H."),
+           family = "Wright",
+           email = "awright@astro.rub.de",
+           role = c("aut", "cre"))
+Author: Angus H. Wright [aut, cre]
+Maintainer: Angus H. Wright <awright@astro.rub.de>
+Description: Provides reusable helpers for data input and output, weighted
+    statistics, scientific plotting, coordinate transformations, and
+    astronomy-oriented analysis. The functions are intended to make common
+    analysis workflows concise and consistent.
+Imports:
+    arrow,
+    bit64,
+    celestial,
+    data.table,
+    doParallel,
+    foreach,
+    HDInterval,
+    magicaxis,
+    matrixStats,
+    plotrix,
+    RColorBrewer,
+    Rfits,
+    seqinr,
+    sm
 License: GPL-2
-Packaged: 2018-10-22 10:30:43 UTC; awright
+Encoding: UTF-8
