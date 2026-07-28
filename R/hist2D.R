@@ -7,7 +7,7 @@ hist2D<-function(xf,yf,w,z,zfun=median,x.bin,y.bin,nbins=c(25,25),dx=NULL,dy=NUL
                  palette=grey.colors,ncol=256,colBar=TRUE,flip=FALSE,colmin=0,colmax=1,inset=0.05,
                  zlim=NULL,barloc='left',orient='v',barscale=c(0.5,1/20),axes=T,useRaster=TRUE,
                  title,titleshift=1.5,title.cex=1,labels=c(T,T,F,F),side=1:4,label.cex=1,add=FALSE,alpha=1,asp=1,plot=TRUE,badval=0,
-                 smooth=FALSE,smooth.sd.pix=1,family=par("family"),...) {
+                 smooth=FALSE,smooth.sd.pix=1,family=par("family"),strip_NA=TRUE,...) {
  
   opar=par(family=family)
   #> Define the title tables before they are evaluated {{{
@@ -28,7 +28,7 @@ hist2D<-function(xf,yf,w,z,zfun=median,x.bin,y.bin,nbins=c(25,25),dx=NULL,dy=NUL
   if (!plot & (axes | colBar)) { 
     axes<-colBar<-FALSE
   }
-  if ((axes | colBar) && !require(magicaxis)) { 
+  if ((axes | colBar) && !requireNamespace("magicaxis", quietly=TRUE)) {
     install.packages(magicaxis)
   }
   #}}}
@@ -38,10 +38,10 @@ hist2D<-function(xf,yf,w,z,zfun=median,x.bin,y.bin,nbins=c(25,25),dx=NULL,dy=NUL
   if (length(nbins)!=2) { nbins=rep(nbins,2)[1:2] }
   if (any(!is.finite(xf))) { warning("Removing non-finite x-values") }
   if (any(!is.finite(yf))) { warning("Removing non-finite y-values") }
-  if (!missing(z) && any(!is.finite(z))) { warning("Removing non-finite z-values") }
+  if (!missing(z) && strip_NA && any(!is.finite(z))) { warning("Removing non-finite z-values") }
   #}}}
   #Subset to the finite data {{{
-  if (!missing(z)) { 
+  if (!missing(z) && strip_NA) {
     ind<-which(is.finite(xf)&is.finite(yf)&is.finite(z))
   } else { 
     ind<-which(is.finite(xf)&is.finite(yf))
@@ -241,9 +241,9 @@ hist2D<-function(xf,yf,w,z,zfun=median,x.bin,y.bin,nbins=c(25,25),dx=NULL,dy=NUL
     }
     #}}}
     if (zlog) {
-      suppressWarnings(helpRfuncs::magbar(barloc,title=paste0("log(",tlab,")"),range=zlim,col=col,labN=3,scale=barscale,orient=orient,titleshift=titleshift,title.cex=title.cex,cex=label.cex,inset=inset,family=family))
+      suppressWarnings(helpRfuncs::magbar(barloc,zval=log10(freq2D),title=paste0("log(",tlab,")"),range=zlim,col=col,labN=3,scale=barscale,orient=orient,titleshift=titleshift,title.cex=title.cex,cex=label.cex,inset=inset,family=family))
     } else {
-      suppressWarnings(helpRfuncs::magbar(barloc,title=tlab,range=zlim,col=col,labN=3,scale=barscale,orient=orient,titleshift=titleshift,title.cex=title.cex,cex=label.cex,inset=inset,family=family))
+      suppressWarnings(helpRfuncs::magbar(barloc,zval=freq2D,title=tlab,range=zlim,col=col,labN=3,scale=barscale,orient=orient,titleshift=titleshift,title.cex=title.cex,cex=label.cex,inset=inset,family=family))
     }
   }
   #}}}
@@ -346,4 +346,3 @@ plot_hist2D<-function(hist_struct,zlog=FALSE,xlim=NULL,ylim=NULL,
   #}}}
 
 }
-
