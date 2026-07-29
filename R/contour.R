@@ -166,7 +166,7 @@ contour<-function (x, y, z, h, doim = TRUE, docon = TRUE, dobar = TRUE, ngrid = 
   #}}}
   #If not "add"-ing, draw the axes {{{
   if (add == FALSE) {
-    magaxis(xlab = xlab, ylab = ylab, side=side, label=labels, family=family)
+    magaxis(xlab = xlab, ylab = ylab, side=side, labels=labels, family=family)
   }
   #}}}
   #If requested, draw the colourbar {{{

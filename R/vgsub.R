@@ -9,8 +9,8 @@ vgsub<-function (pattern, replacement, x, ignore.case = FALSE, perl = FALSE,
         replacement<-rep(replacement[1],length(pattern))
     }
     for (i in 1:length(pattern)) {
-        x<-.Internal(gsub(as.character(pattern[i]), as.character(replacement[i]), 
-            x, ignore.case, perl, fixed, useBytes))
+        x<-gsub(as.character(pattern[i]), as.character(replacement[i]), 
+            x, ignore.case, perl, fixed, useBytes)
     }
     return(x)
 }

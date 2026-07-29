@@ -1,3 +1,15 @@
 exportPattern("^[[:alpha:]]+")
 importFrom(foreach,"%:%")
 importFrom(foreach,"%dopar%")
+importFrom("grDevices", "contourLines", "dev.print", "dev.size",
+    "grey.colors", "hcl.colors", "hsv", "pdf", "png", "rainbow")
+importFrom("graphics", "abline", "box", "hist", "image", "layout",
+    "legend", "lines", "par", "plot.new", "plot.window",
+    "points", "polygon", "rect", "segments", "text")
+importFrom("stats", "aggregate", "approxfun", "bw.SJ", "cor", "cov",
+    "density", "density.default", "dist", "fft", "integrate",
+    "median", "pnorm", "quantile", "rnorm", "sd",
+    "weighted.mean")
+importFrom("utils", "head", "install.packages", "installed.packages",
+    "setTxtProgressBar", "tail", "txtProgressBar",
+    "write.table")
