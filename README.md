@@ -1,5 +1,7 @@
 # helpRfuncs
 
+![R-CMD-check](https://github.com/AngusWright/helpRfuncs/workflows/R-CMD-check/badge.svg)
+
 A collection of reusable R helpers for scientific data analysis, visualization,
 and astronomy workflows.
 
