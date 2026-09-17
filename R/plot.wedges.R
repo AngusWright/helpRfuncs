@@ -61,6 +61,7 @@
           y=c(toplines[i,2],bottomlines[i,2]),
           col=hsv(h=0,s=0,v=0.75,alpha=0.75),lwd=0.75)
     if(any(text==1) & labels){
+      op<-par(xpd=NA)
       if (trace) { 
         points(toplines[i,1]+xbuff,toplines[i,2]+ybuff,cex=2,col='purple',pch=0)
       }
@@ -68,6 +69,7 @@
         text(toplines[i,1]+xbuff,toplines[i,2]+ybuff,(rasteps[i]-rotation)/ramult+ramean,
             cex=textsize, srt=textangle[1],pos=pos)
       }
+      par(op)
     }
   }
   lines(x=c(topright[1],bottomright[1]),y=c(topright[2],bottomright[2]))
@@ -106,6 +108,7 @@
   for(i in 1:length(zsteps)){
     arc = celestial::sph2car(seq(min(ralim),max(ralim),len=1e3),mean(declim),celestial::cosdistCoDist(z=zsteps[i],H0=H0,OmegaM=OmegaM))
     lines(x=arc[,1],y=arc[,2],col=hsv(h=0,s=0,v=0.75,alpha=0.75),lwd=0.75)
+    op<-par(xpd=NA)
     if(any(text==2) & labels){
       if (trace) { 
         points(headtail(arc[,1],1)+xbuff,tail(arc[,2],1)+ybuff,cex=2, col='purple',pch=0)
@@ -120,12 +123,14 @@
   lines(x=bottomarc[,1],y=bottomarc[,2])
 
   if(any(text==3) & labels){
+    op<-par(xpd=NA)
     if (trace) { 
       points(x=(par('usr')[1]+par('usr')[2])/2+titleshift.x,y=par('usr')[3]+titleshift.y,pch=0,col='purple',cex=2)
     }
     text(x=(par('usr')[1]+par('usr')[2])/2+titleshift.x,y=par('usr')[3]+titleshift.y,
          label=paste(round(digits=4,min(zlim)), " < z < ", round(digits=4,max(zlim)), "\n",
                      round(min(declim),digits=4), " < Dec < ", round(digits=4,max(declim)),sep=""),cex=textsize, srt=textangle[2])
+    par(op)
   }
 
   if(labels){
@@ -138,6 +143,7 @@
     }
   }
   text(helpRfuncs::text.coord(mainloc,inset=main.inset),labels=main,font=2)
+  par(op)
 
 }
 
